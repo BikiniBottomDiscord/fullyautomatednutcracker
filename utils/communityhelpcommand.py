@@ -2,8 +2,10 @@ from discord.ext import commands
 import itertools
 import discord
 
+# rev or dove or anyone else seeing this pls ignore the awful parts and feel freel to change anything - mine
 
-class ZeroMayHelpCommand(commands.HelpCommand):
+
+class CommunityHelpCommand(commands.HelpCommand):
 
     def __init__(self, **options):
         self.sort_commands = options.pop('sort_commands', True)
@@ -12,9 +14,7 @@ class ZeroMayHelpCommand(commands.HelpCommand):
         self.dm_help_threshold = options.pop('dm_help_threshold', 1000)
         self.aliases_heading = options.pop('aliases_heading', "Aliases:")
         self.no_category = options.pop('no_category', 'No Category')
-        # self.paginator = options.pop('paginator', None)
         self.embed = discord.Embed()
-        # if self.paginator is None:
         self.paginator = commands.Paginator(suffix=None, prefix=None)
 
         super().__init__(**options)
@@ -27,21 +27,9 @@ class ZeroMayHelpCommand(commands.HelpCommand):
         bot.add_command(command)
         bot.help_command._command_impl = command
 
-    async def on_help_command_error(self, ctx, error):
-        error = getattr(error, 'original', error)
-        #  if isinstance(error, discord.Forbidden): #todo: finish making custom bot class for help commands to be able to take functions
-        # todo: try/except with other help command class
-        # await self.send_pages(self.embed)
-
     async def send_pages(self, embed):
         destination = self.get_destination()
         embed.color = self.context.author.color
-        # embed.description = 'Need help? Join the Official Development and support DWDF server! https://discord.gg/vNH3DVh\n\n' \
-        #                    '**Disclaimer: Portions of the materials used are trademarks and/or copyrighted works of Big Blue Bubble. ' \
-        #                    'All rights reserved by Big Blue Bubble. This material is not official and is not endorsed by Big Blue Bubble.**' \
-        #                    '\n*Bot not complete, progress could get corrupted or erased, bot also not yet available to add to servers*'
-        # for page in self.paginator.pages:
-        # print(page.splitlines())
         await destination.send(embed=embed)
 
     async def command_not_found(self, string):
@@ -56,7 +44,6 @@ class ZeroMayHelpCommand(commands.HelpCommand):
 
     def add_bot_commands_formatting(self, _commands, heading):
         if _commands:
-            # U+2002 Middle Dot
             joined = ', '.join(c.name for c in _commands)
             self.embed.add_field(name=heading, value=joined, inline=False)
 
@@ -74,7 +61,6 @@ class ZeroMayHelpCommand(commands.HelpCommand):
         if command.signature:
             signature = self.get_command_signature(command)
         if command.aliases:
-            # self.paginator.add_line(signature)
             aliases = command.aliases
         if command.help:
             help_ = command.help
@@ -121,11 +107,6 @@ class ZeroMayHelpCommand(commands.HelpCommand):
         joined = ', '.join(c.qualified_name for c in _commands)
         self.embed.add_field(name='No Category', value=joined, inline=False)
 
-        # self.get_ending_note()
-        # if note:
-        #     self.paginator.add_line()
-        #     self.paginator.add_line(note)
-
         await self.send_pages(self.embed)
 
     async def send_cog_help(self, cog):
@@ -145,40 +126,27 @@ class ZeroMayHelpCommand(commands.HelpCommand):
                     sub_command_formats.append(fmt)
             self.embed.add_field(name=f'**{cog.qualified_name} {self.commands_heading}**',
                                  value='\n'.join(sub_command_formats))
-            # note = self.get_ending_note()
-            # if note:
-            #    self.paginator.add_line()
-            #    self.paginator.add_line(note)
 
         await self.send_pages(self.embed)
 
     async def send_group_help(self, group):
-        # self.add_command_formatting(group)
-
         filtered = await self.filter_commands(group.commands, sort=self.sort_commands)
         if filtered:
             note = self.get_opening_note()
             if note:
                 self.embed.title = note
 
-            # self.paginator.add_line(self.commands_heading)
             sub_command_formats = []
             for command in filtered:
                 if fmt := self.get_subcommand_formatting(command):
                     sub_command_formats.append(fmt)
             self.embed.add_field(name=f'**{self.commands_heading}**', value='\n'.join(sub_command_formats))
-            # note = self.get_ending_note()
-            # if note:
-            #    self.paginator.add_line()
-            #    self.paginator.add_line(note)
 
         await self.send_pages(self.embed)
 
     async def send_command_help(self, command):
         description, signature, aliases, help_ = self.get_command_formatting(command)
         self.embed.title = self.get_opening_note()
-        # print(aliases)
-        # print(signature)
         thing = f"{self.clean_prefix}{command.qualified_name}" + ('|' + '|'.join(aliases) + ' ' if aliases else '') + (
             f" {signature}" if signature else '')
         self.embed.add_field(name=thing, value=help_)
