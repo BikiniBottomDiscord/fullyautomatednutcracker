@@ -1,7 +1,11 @@
+import discord
 import logging
 import datetime
+import traceback
 
 from discord.ext import commands
+from os import listdir
+from os.path import join, isfile
 
 from utils.checks import is_owner
 
@@ -27,3 +31,17 @@ START_TIME = datetime.datetime.now()
 @bot.event
 async def on_ready():
     logger.info(f"Successfully logged into account {bot.user.name} with id {str(bot.user.id)} and version {version}")
+
+
+cog_dir = "fullyautomatednutcracker/cogs"
+import_dir = cog_dir.replace('/', '.')
+COGS_LOADED = False
+if not COGS_LOADED:
+    for extension in [f.replace('.py', '') for f in listdir(cog_dir) if isfile(join(cog_dir, f))]:
+        try:
+            bot.load_extension(import_dir + "." + extension)
+            print(f'Successfully loaded extension {extension}.')
+        except (discord.ClientException, ModuleNotFoundError):
+            print(f'Failed to load extension {extension}.')
+            traceback.print_exc()
+    COGS_LOADED = True
