@@ -11,7 +11,7 @@ import random
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
 
 
-class Fun(commands.cog):
+class Fun(commands.Cog):
     """Fun commands like quick bot responses or simple games. ex: rock paper scissors"""
     def __init__(self, bot):
         self.bot = bot
