@@ -27,26 +27,26 @@ class Admin(commands.Cog):
     @commands.command()
     async def load(self, ctx, cog_name):
         try:
-            self.bot.load_extension(cog_name)
+            self.bot.load_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
             await ctx.send(f"Loaded {cog_name}.")
         except Exception as e:
-            await ctx.send(f"{e.__class__}: {e}")
+            await ctx.send(f"{e.__class__.__name__}: {e}")
 
     @commands.command()
     async def unload(self, ctx, cog_name):
         try:
-            self.bot.unload_extension(cog_name)
+            self.bot.unload_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
             await ctx.send(f"Unloaded {cog_name}.")
         except Exception as e:
-            await ctx.send(f"{e.__class__}: {e}")
+            await ctx.send(f"{e.__class__.__name__}: {e}")
 
     @commands.command()
     async def reload(self, ctx, cog_name):
         try:
-            self.bot.reload_extension(cog_name)
+            self.bot.reload_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
             await ctx.send(f"Reloaded {cog_name}.")
         except Exception as e:
-            await ctx.send(f"{e.__class__}: {e}")
+            await ctx.send(f"{e.__class__.__name__}: {e}")
 
     @commands.command()
     async def send(self, ctx, destination: Union[TextChannel, Member], *, msg):

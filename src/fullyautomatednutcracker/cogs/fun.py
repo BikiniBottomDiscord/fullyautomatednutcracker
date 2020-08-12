@@ -10,12 +10,15 @@ import random
 #VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
 
+
 class Fun(commands.cog):
     """Fun commands like quick bot responses or simple games. ex: rock paper scissors"""
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=["rps"])
     async def rockpaperscissors(self, ctx):
-        '''A nice game of Rock Paper Scissors. - Alias: rps'''
+        """A nice game of Rock Paper Scissors. - Alias: rps"""
         VERIFY = False
         member = ctx.author
         await ctx.send('Thinking of my answer ...')
@@ -39,6 +42,7 @@ class Fun(commands.cog):
             await ctx.send("https://tenor.com/view/monty-python-draw-gif-5447899")
         else:
             await ctx.send("https://tenor.com/view/you-lose-good-day-sir-gif-7465431")
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
