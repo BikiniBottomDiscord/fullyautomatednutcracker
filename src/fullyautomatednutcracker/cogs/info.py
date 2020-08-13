@@ -10,11 +10,10 @@ class Info(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.cooldown(rate=1, per=60)
     async def joinpos(self, ctx, member: discord.Member = None):
         """Calculates your join position."""
         member = member if member else ctx.author
-        order = sorted((await ctx.guild.fetch_members().flatten()), key=lambda m: m.joined_at)
+        order = sorted(ctx.guild.members, key=lambda m: m.joined_at)
         join_pos = order.index(member) + 1
         await ctx.send(join_pos)
 
