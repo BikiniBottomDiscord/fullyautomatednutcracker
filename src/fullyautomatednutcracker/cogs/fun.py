@@ -21,7 +21,7 @@ class Fun(commands.Cog):
         """A nice game of Rock Paper Scissors. - Alias: rps"""
 
         answers = ['rock', 'paper', 'scissors']
-        await ctx.send('Thinking of my answer ...'
+        await ctx.send('Thinking of my answer ...')
         RESPONSE = random.randint(0, 2)
         await asyncio.sleep(0.8)
         await ctx.send('Got it! Awaiting response.')
