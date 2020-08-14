@@ -21,12 +21,12 @@ class Fun(commands.Cog):
         """A nice game of Rock Paper Scissors. - Alias: rps"""
 
         answers = ['rock', 'paper', 'scissors']
-        await ctx.send('Thinking of my answer ...'
+        await ctx.send('Thinking of my answer ...')
         RESPONSE = random.randint(0, 2)
         await asyncio.sleep(0.8)
         await ctx.send('Got it! Awaiting response.')
         try:
-            MESSAGE = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and message.content in answers, timeout=30.0)
+            MESSAGE = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and message.content.lower() in answers, timeout=30.0)
         except asyncio.TimeoutError:
             await ctx.send(f'{ctx.author.mention} took too long to respond, game over')
             return
