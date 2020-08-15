@@ -56,3 +56,7 @@ class Github(commands.Cog):
                 current_chunk = line + "\n"
         chunks.append(current_chunk)
         return chunks
+
+
+def setup(bot):
+    bot.add_cog(Github(bot))
