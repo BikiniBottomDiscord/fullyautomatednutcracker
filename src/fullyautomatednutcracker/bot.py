@@ -7,7 +7,7 @@ from discord.ext import commands
 from os import listdir
 from os.path import join, isfile
 
-from utils.checks import is_owner
+from utils.global_guild_settings import BotGuildSettings as Settings
 
 
 logger = logging.getLogger(__name__)
@@ -26,11 +26,16 @@ bot.help_command = commands.MinimalHelpCommand()
 version = "v0.0.1b"
 
 START_TIME = datetime.datetime.now()
+STARTED = False
 
 
 @bot.event
 async def on_ready():
     logger.info(f"Successfully logged into account {bot.user.name} with id {str(bot.user.id)} and version {version}")
+    global STARTED
+    if not STARTED:
+        await bot.get_channel(Settings.instance.TREEDOME).send(f"Starting up...")
+        STARTED = True
 
 
 cog_dir = "fullyautomatednutcracker/cogs"

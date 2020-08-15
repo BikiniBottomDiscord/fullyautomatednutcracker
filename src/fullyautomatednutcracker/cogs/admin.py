@@ -1,14 +1,13 @@
 import discord
 import io
+import os
 
 from discord.ext import commands
 from discord import Member, TextChannel
 from typing import Union
 
-
-from utils import checks
+from utils.global_guild_settings import BotGuildSettings as Settings
 from utils.common import is_admin
-
 
 
 class Admin(commands.Cog):
@@ -61,6 +60,13 @@ class Admin(commands.Cog):
             await ctx.send(f"Sent to {destination}.")
         except discord.Forbidden:
             await ctx.send(f"Could not send to {destination}.")
+
+    @commands.command()
+    async def reboot(self, ctx):
+        await self.bot.get_channel(Settings.instance.TREEDOME).send(f"Shutting down...")
+        if not Settings.instance.DEBUG:
+            os.system("python3 scripts/reboot.py")
+        await self.bot.close()
 
 
 def setup(bot):
