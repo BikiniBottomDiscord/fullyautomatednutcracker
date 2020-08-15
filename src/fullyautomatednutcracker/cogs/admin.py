@@ -67,6 +67,11 @@ class Admin(commands.Cog):
         if not Settings.instance.DEBUG:
             os.system("python3 scripts/reboot.py")
         await self.bot.close()
+    
+    @commands.command()
+    async def updateglobals(self, _):
+        Settings(Settings.instance.DEBUG, Settings.instance.DATABASE, Settings.instance.NHBOT, reimport=True)
+        await self.bot.get_channel(Settings.instance.TREEDOME).send(f"Global constants updated.")
 
 
 def setup(bot):
