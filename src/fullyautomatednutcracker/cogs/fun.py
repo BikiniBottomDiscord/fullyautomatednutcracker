@@ -16,7 +16,7 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         username, password, client_secret, client_id = load_reddit_creds()
-        self.bot.reddit = apraw.Reddit(username=username, password=pasword, client_secret=client_secret, client_id=client_id)
+        self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
 
     @commands.command(aliases=["rps"])
     async def rockpaperscissors(self, ctx):
