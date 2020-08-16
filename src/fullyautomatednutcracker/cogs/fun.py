@@ -59,7 +59,7 @@ class Fun(commands.Cog):
         post = random.choice(submissions)
         author = await post.author()
         url = 'https://reddit.com' + post.permalink
-        embed = custom_embed.CustomEmbed(ctx, color=ctx.author.color)
+        embed = discord.Embed(color=ctx.author.color)
         embed.title = f"{post.title} - /u/{author} on r/{subreddit.display_name}"
         embed.description = post.selftext or ''
         embed.url = url
