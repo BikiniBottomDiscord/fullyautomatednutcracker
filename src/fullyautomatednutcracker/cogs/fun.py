@@ -1,13 +1,14 @@
-#put all the fun commands here
-#IMPORTS
-import discord, apraw
+# put all the fun commands here
+# IMPORTS
+import discord
+import apraw
 
 from discord.ext import commands
 from utils.common import load_reddit_creds
 import asyncio
 import random
 
-#VARIABLES
+# VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
 
 
@@ -51,7 +52,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['coot', 'cute'])
     async def aww(self, ctx):
-        subreddit = await reddit.subreddit('aww')
+        subreddit = await self.bot.reddit.subreddit('aww')
         submissions = []
         async for submission in subreddit.hot(limit=50):
             if submission.pinned is False:
@@ -66,7 +67,6 @@ class Fun(commands.Cog):
         embed.set_image(url=post.url)
         embed.set_footer(text='*if image isn\'t working then it probably is a video*')
         await ctx.send(embed=embed)
-
 
 
 def setup(bot):
