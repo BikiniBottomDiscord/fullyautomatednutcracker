@@ -18,6 +18,14 @@ class Fun(commands.Cog):
         self.bot = bot
         username, password, client_secret, client_id = load_reddit_creds()
         self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
+        self.submissions = []
+
+    def get_submission(self, subreddit):
+        if len(self.submissions) == 0:
+            async for submission in subreddit.hot(limit=25):
+                if submission.pinned is False:
+                    self.submissions.append(submission)
+        return random.choice(self.submissions)
 
     @commands.command(aliases=["rps"])
     async def rockpaperscissors(self, ctx):
@@ -53,11 +61,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=['coot', 'cute'])
     async def aww(self, ctx):
         subreddit = await self.bot.reddit.subreddit('aww')
-        submissions = []
-        async for submission in subreddit.hot(limit=50):
-            if submission.pinned is False:
-                submissions.append(submission)
-        post = random.choice(submissions)
+        post = self.get_submission(subreddit)
         author = await post.author()
         url = 'https://reddit.com' + post.permalink
         embed = discord.Embed(color=ctx.author.color)

@@ -6,8 +6,8 @@ class AntiSelfDeprecation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.bot.nono_words = []
-        self.dumb = ('im dumb', 'i\'m dumb', 'im stupid', 'i\'m dumb')
-        self.not_dumb = ('im not dumb', 'i\'m not dumb')
+        self.dumb = ('im dumb', 'i\'m dumb', 'im stupid', 'i\'m stupid')
+        self.not_dumb = ('im not dumb', 'i\'m not dumb', 'i\'m not stupid', 'im not stupid')
         self.bot.deny = ['shut', 'shut up', 'up shut']
 
     @commands.Cog.listener()
