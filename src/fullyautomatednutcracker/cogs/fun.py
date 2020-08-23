@@ -69,11 +69,11 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
     
     
-    @commands.command(aliases='mc')
+    @commands.command(aliases=['mc'])
     async def membercount(self,ctx):
         await ctx.send(f'The Current Member Count Is: {len(ctx.guild.members)}')
 
-    @commands.command(aliases='gi')
+    @commands.command(aliases=['gi'])
     async def guildinfo(self,ctx):
         bots = len([x for x in ctx.guild.members if x.bot])
         amtuser = len([x for x in ctx.guild.members if not x.bot])
