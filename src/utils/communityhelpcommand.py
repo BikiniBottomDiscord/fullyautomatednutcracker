@@ -122,7 +122,8 @@ class CommunityHelpCommand(commands.HelpCommand):
         if filtered:
             sub_command_formats = []
             for command in filtered:
-                if fmt := self.get_subcommand_formatting(command):
+                fmt = self.get_subcommand_formatting(command)
+                if fmt:
                     sub_command_formats.append(fmt)
             self.embed.add_field(name=f'**{cog.qualified_name} {self.commands_heading}**',
                                  value='\n'.join(sub_command_formats))
@@ -138,7 +139,8 @@ class CommunityHelpCommand(commands.HelpCommand):
 
             sub_command_formats = []
             for command in filtered:
-                if fmt := self.get_subcommand_formatting(command):
+                fmt = self.get_subcommand_formatting(command):
+                if fmt:
                     sub_command_formats.append(fmt)
             self.embed.add_field(name=f'**{self.commands_heading}**', value='\n'.join(sub_command_formats))
 
