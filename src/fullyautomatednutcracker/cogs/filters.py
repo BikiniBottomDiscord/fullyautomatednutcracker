@@ -11,7 +11,7 @@ class Filters(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["gay","rainbow"])
-    async def gaygaygay(self,ctx, member: discord.Member = None):
+    async def gaygaygay(self, ctx, member: discord.Member =None):
         member = ctx.author if not member else member
         downloaded_pfp = image_from_url(member.avatar_url, "image/png")
         resized_pfp = resize(downloaded_pfp, 250)
