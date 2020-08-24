@@ -44,5 +44,6 @@ class Filters(commands.Cog):
 
 
 
-def setup(bot):
+def setup(bot):g
     bot.add_cog(Filters(bot))
+    
