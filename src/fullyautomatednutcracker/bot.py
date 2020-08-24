@@ -8,6 +8,7 @@ from os import listdir
 from os.path import join, isfile
 
 from utils.global_guild_settings import BotGuildSettings as Settings
+from utils.communityhelpcommand import CommunityHelpCommand
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ logging.basicConfig(level=logging.INFO)
 logging.info("Starting \"Fully Automated Nutcracker\" bot script!")
 _pfx = ["$", "dmb ", "<:daddy:590058725252005888> "]
 bot = commands.Bot(command_prefix=_pfx)
-bot.help_command = commands.MinimalHelpCommand()
+bot.help_command = CommunityHelpCommand()
 # bot.is_owner = is_owner  # TODO: do we want this? @dove
 version = "v0.0.1b"
 
