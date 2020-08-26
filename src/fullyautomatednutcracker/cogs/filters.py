@@ -21,7 +21,7 @@ class Filters(commands.Cog):
         await channel.send(file=discord.File(bytes_fp, file_name))
 
     @commands.command(aliases=["gay", "rainbow"])
-    async def gaygaygay(self, ctx, inv_object: typing.Union[discord.Member, discord.Emoji]=None):
+    async def gaygaygay(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji]=None):
         if not inv_object or isinstance(inv_object, discord.Member):
             member = inv_object or ctx.author
             downloaded_pfp = image_from_url(member.avatar_url, "image/png")
@@ -60,7 +60,7 @@ class Filters(commands.Cog):
             resized_filter.close()
 
     @commands.command(aliases=["inv"])
-    async def invert(self, ctx, inv_object: typing.Union[discord.Member, discord.Emoji]=None):
+    async def invert(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji]=None):
         if not inv_object or isinstance(inv_object, discord.Member):
             member = inv_object or ctx.author
             downloaded_pfp = image_from_url(member.avatar_url, "image/png")
@@ -94,6 +94,44 @@ class Filters(commands.Cog):
             downloaded_emoji.close()
             resized_emoji.close()
 
+    @commands.command()
+    async def hypify(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji] = None):
+        if not inv_object or isinstance(inv_object, discord.Member):
+            member = inv_object or ctx.author
+            downloaded_pfp = image_from_url(member.avatar_url, "image/png")
+            resized_pfp = resize(downloaded_pfp, 250)
+            gay_filter = Image.open('content/filters/20hype_arms.png')
+            resized_filter = resize(gay_filter, 230)
+            resized_pfp.paste(resized_filter, (0, -10), resized_filter)
+            await self.save_img_and_send(resized_pfp, ctx.channel, file_name="20hype_arms.png")
+            downloaded_pfp.close()
+            gay_filter.close()
+            resized_pfp.close()
+            resized_filter.close()
+        else:
+            downloaded_emoji = image_from_url(inv_object.url, "image/png")
+
+            bands = downloaded_emoji.split()
+            width_diff = abs(downloaded_emoji.size[0] - 250)
+            height_diff = abs(downloaded_emoji.size[1] - 250)
+            if height_diff > width_diff:
+                size = (250, downloaded_emoji.size[1] * 250 // downloaded_emoji.size[0])
+            else:
+                size = (downloaded_emoji.size[0] * 250 // downloaded_emoji.size[1], 250)
+            bands = [b.resize(size, Image.LINEAR) for b in bands]
+            resized_emoji = Image.merge('RGBA', bands)
+
+            hype_arms = Image.open('content/filters/20hype_arms.png')
+            bands = hype_arms.split()
+            bands = [b.resize(resized_emoji.size, Image.LINEAR) for b in bands]
+            resized_filter = Image.merge('RGBA', bands)
+
+            resized_emoji.paste(resized_filter, (0, -10), resized_filter)
+            await self.save_img_and_send(resized_emoji, ctx.channel, file_name="20hype_arms.png")
+            downloaded_emoji.close()
+            hype_arms.close()
+            resized_emoji.close()
+            resized_filter.close()
 
 def setup(bot):
     bot.add_cog(Filters(bot))
