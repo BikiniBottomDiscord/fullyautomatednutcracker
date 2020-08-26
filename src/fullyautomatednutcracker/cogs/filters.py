@@ -20,7 +20,7 @@ class Filters(commands.Cog):
         bytes_fp.seek(0)
         await channel.send(file=discord.File(bytes_fp, file_name))
 
-    @commands.command(aliases=["gay", "rainbow"])
+    @commands.command(aliases=["gay", "rainbow","mod"])
     async def gaygaygay(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji]=None):
         if not inv_object or isinstance(inv_object, discord.Member):
             member = inv_object or ctx.author
