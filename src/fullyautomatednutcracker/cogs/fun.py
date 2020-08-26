@@ -40,9 +40,9 @@ class Fun(commands.Cog):
         await asyncio.sleep(0.6)
         result = response - answers[MESSAGE.content.lower()] + 2
         gif = ["https://cdn.discordapp.com/attachments/742559349750235136/743267433615196170/winner.gif",
-               "https://cdn.discordapp.com/attachments/742559349750235136/743267433615196170/winner.gif",
-               "https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif",
                "https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif",
+               "https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif",
+               "https://cdn.discordapp.com/attachments/742559349750235136/743267433615196170/winner.gif",
                "https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif"]
         await ctx.send(gif[result])
 
