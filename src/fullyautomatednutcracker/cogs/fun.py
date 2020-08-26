@@ -9,7 +9,6 @@ import asyncio
 import random
 
 # VARIABLES
-OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
 
 
 class Fun(commands.Cog):
@@ -23,32 +22,26 @@ class Fun(commands.Cog):
     async def rockpaperscissors(self, ctx):
         """A nice game of Rock Paper Scissors. - Alias: rps"""
 
-        answers = ['rock', 'paper', 'scissors']
+        options = ['Rock!', 'Paper!', 'Scissors!']
+        answers = {'rock': 0, 'paper': 1, 'scissors': 2}
         await ctx.send('Thinking of my answer ...')
-        RESPONSE = random.randint(0, 2)
+        response = random.randint(0, 2)
         await asyncio.sleep(0.8)
         await ctx.send('Got it! Awaiting response.')
         try:
-            MESSAGE = await self.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel and message.content.lower() in answers, timeout=30.0)
+            MESSAGE = await self.bot.wait_for('message', check=lambda
+                message: message.author == ctx.author and message.channel == ctx.channel
+                         and message.content.lower() in answers, timeout=30.0)
         except asyncio.TimeoutError:
             await ctx.send(f'{ctx.author.mention} took too long to respond, game over')
             return
-        await ctx.send(OPTIONS[RESPONSE])
+        await ctx.send(options[response])
         await asyncio.sleep(0.6)
-        if MESSAGE.content.lower() == "rock" and RESPONSE == 2:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif")
-        elif MESSAGE.content.lower() == "paper" and RESPONSE == 0:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif")
-        elif MESSAGE.content.lower() == "scissors" and RESPONSE == 1:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif")
-        elif MESSAGE.content.lower() == "rock" and RESPONSE == 0:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif")
-        elif MESSAGE.content.lower() == "paper" and RESPONSE == 1:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif")
-        elif MESSAGE.content.lower() == "scissors" and RESPONSE == 2:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif")
-        else:
-            await ctx.send("https://cdn.discordapp.com/attachments/742559349750235136/743267433615196170/winner.gif")
+        result = response - answers[MESSAGE.content.lower()]
+        gif = {range(-2, -1): "https://cdn.discordapp.com/attachments/742559349750235136/743267433615196170/winner.gif",
+               0: "https://cdn.discordapp.com/attachments/742559349750235136/744616057763004838/draw.gif",
+               range(1, 2): "https://cdn.discordapp.com/attachments/742559349750235136/743267535876653528/you_win.gif"}
+        await ctx.send(gif[result])
 
     @commands.command(aliases=['coot', 'cute'])
     async def aww(self, ctx):
