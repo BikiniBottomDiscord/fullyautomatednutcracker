@@ -87,5 +87,16 @@ class Fun(commands.Cog):
         embed.add_field(name='Boost level:', value=(f'{ctx.guild.premium_tier}'))
         await ctx.send(embed=embed)
 
+    async def howbad(self, ctx, member: discord.Member = None):
+        member = ctx.author if not member else member
+        if member.id == 304695409031512064:
+            embed = discord.Embed(title=(f'{member}\'s badness level'), colour=member.color)
+            embed.add_field(name="They are:", value=(f'100% Bad(dmb)'))
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title=(f'{ctx.author}\'s badness level'), colour=member.color)
+            embed.add_field(name="They are:", value=(f'{random.randint(1, 75)}% Bad'))
+            await ctx.send(embed=embed)
+
 def setup(bot):
     bot.add_cog(Fun(bot))
