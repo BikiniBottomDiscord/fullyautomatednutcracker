@@ -86,7 +86,7 @@ class Fun(commands.Cog):
         embed.add_field(name='Total number of emojis', value=(f'{len(ctx.guild.emojis)}'))
         embed.add_field(name='Boost level:', value=(f'{ctx.guild.premium_tier}'))
         await ctx.send(embed=embed)
-
+    @commands.command()
     async def howbad(self, ctx, member: discord.Member = None):
         member = ctx.author if not member else member
         if member.id == 304695409031512064:
