@@ -88,10 +88,15 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
     @commands.command()
     async def howbad(self, ctx, member: discord.Member = None):
+        good = [224323277370294275, 448250281097035777, 562642634686988289]
         member = ctx.author if not member else member
         if member.id == 304695409031512064:
             embed = discord.Embed(title=(f'{member}\'s badness level'), colour=member.color)
             embed.add_field(name="They are:", value=(f'100% Bad(dmb)'))
+            await ctx.send(embed=embed)
+        elif member.id in good:
+            embed = discord.Embed(title=(f'{member}\'s Good level'), colour=member.color)
+            embed.add_field(name="They are:", value=(f'100% Good'))
             await ctx.send(embed=embed)
         else:
             embed = discord.Embed(title=(f'{ctx.author}\'s badness level'), colour=member.color)
