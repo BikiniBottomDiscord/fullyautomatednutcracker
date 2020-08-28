@@ -5,6 +5,7 @@ import apraw
 
 from discord.ext import commands
 from utils.common import load_reddit_creds
+from utils import checks
 import asyncio
 import random
 
@@ -104,6 +105,7 @@ class Fun(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
+    @checks.lifeguard()
     async def add_good(self,ctx, member:discord.Member):
         self.bot.good.appened(member.id)
         await ctx.send('Added To Good Person List')
