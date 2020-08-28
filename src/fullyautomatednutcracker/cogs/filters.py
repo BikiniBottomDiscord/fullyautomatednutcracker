@@ -67,6 +67,44 @@ class Filters(commands.Cog):
             resized_emoji.close()
             resized_filter.close()
 
+    @commands.command()
+    async def trans(self, ctx, inv_obj: Optional[Union[discord.Member, discord.PartialEmoji]] = None):
+        if not inv_obj or isinstance(inv_obj, discord.Member):
+            member = inv_obj or ctx.author
+            image = image_from_url(member.avatar_url, 'image/png')
+            resized_pfp = resize(image, 250)
+            trans_filter = Image.open('content/filters/transflag.png')
+            resized_filter = resize(trans_filter, 250)
+            resized_pfp.paste(resized_filter, (0, 0), resized_filter)
+            await self.save_img_and_send(resized_pfp, ctx.channel, file_name='trans.png')
+            image.close()
+            resized_pfp.close()
+            trans_filter.close()
+            resized_filter.close()
+        else:
+            image = image_from_url(inv_obj.url, "image/png")
+            bands = image.split()
+            width_diff = abs(image.width - 250)
+            height_diff = abs(image.height - 250)
+            if width_diff > height_diff:
+                size = (250, image.height * 250 // image.width)
+            else:
+                size = (image.width * 250 // image.height, 250)
+            bands = [b.resize(size, Image.LINEAR) for b in bands]
+            resized_image = Image.merge('RGBA', bands)
+            trans_filter = Image.open('content/filters/transflag.png')
+            bands = trans_filter.split()
+            bands = [b.resize(resized_image.size, Image.LINEAR) for b in bands]
+            resized_trans_filter = Image.merge('RGBA', bands)
+            resized_trans_filter.putalpha(185)
+            resized_image.paste(resized_trans_filter, (0, 0), resized_trans_filter)
+
+            await self.save_img_and_send(resized_image, ctx.channel, file_name='trans.png')
+            image.close()
+            resized_image.close()
+            trans_filter.close()
+            resized_trans_filter.close()
+
     @commands.command(aliases=["inv"])
     async def invert(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji]=None):
         if not inv_object or isinstance(inv_object, discord.Member):
@@ -142,13 +180,13 @@ class Filters(commands.Cog):
             resized_filter.close()
 
     @commands.command()
-    async def shake(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji] = None, zoom_level: float=1.3, shake_strenght: int=5):
+    async def shake(self, ctx, inv_object: typing.Union[discord.Member, discord.PartialEmoji] = None, zoom_level: float=1.3, shake_strength: int=5):
         def shake_image(image: Image):
             gif = []
             shake_offsets = [
                 (-(int(image.size[0]*zoom_level) - image.size[0]) // 2, -(int(image.size[1]*zoom_level) - image.size[1]) // 2),
-                (-(int(image.size[0]*zoom_level) - image.size[0]) // 2 + shake_strenght, -(int(image.size[1]*zoom_level) - image.size[1]) // 2 + shake_strenght),
-                (-(int(image.size[0]*zoom_level) - image.size[0]) // 2 + 2 * shake_strenght, -(int(image.size[1]*zoom_level) - image.size[1]) // 2),
+                (-(int(image.size[0]*zoom_level) - image.size[0]) // 2 + shake_strength, -(int(image.size[1]*zoom_level) - image.size[1]) // 2 + shake_strength),
+                (-(int(image.size[0]*zoom_level) - image.size[0]) // 2 + 2 * shake_strength, -(int(image.size[1]*zoom_level) - image.size[1]) // 2),
             ]
 
             rbands = image.split()
@@ -168,7 +206,7 @@ class Filters(commands.Cog):
 
         # clamp value
         zoom_level = min(max(0.5, zoom_level), 3.0)
-        shake_strenght = min(max(1, shake_strenght), 125)
+        shake_strength = min(max(1, shake_strength), 125)
         if not inv_object or isinstance(inv_object, discord.Member):
             member = inv_object or ctx.author
             downloaded_pfp = image_from_url(member.avatar_url, "image/png")
@@ -191,6 +229,82 @@ class Filters(commands.Cog):
             resized_emoji = Image.merge('RGBA', bands)
 
             shaked_emoji = shake_image(resized_emoji)
+            await self.save_gif_and_send(shaked_emoji, ctx.channel, file_name="shake.gif")
+            downloaded_emoji.close()
+            resized_emoji.close()
+
+    @commands.command()
+    async def triggered(self, ctx, inv_object: Union[discord.Member, discord.PartialEmoji] = None,
+                        zoom_level: float = 1.3, shake_strength: int = 5):
+        def shake_and_trigger_image(image: Image):
+            gif = []
+            shake_offsets = [
+                (-(int(image.size[0] * zoom_level) - image.size[0]) // 2,
+                 -(int(image.size[1] * zoom_level) - image.size[1]) // 2),
+                (-(int(image.size[0] * zoom_level) - image.size[0]) // 2 + shake_strength,
+                 -(int(image.size[1] * zoom_level) - image.size[1]) // 2 + shake_strength),
+                (-(int(image.size[0] * zoom_level) - image.size[0]) // 2 + 2 * shake_strength,
+                 -(int(image.size[1] * zoom_level) - image.size[1]) // 2),
+            ]
+
+            rbands = image.split()
+            rbands = [b.resize((int(image.size[0] * zoom_level), int(image.size[1] * zoom_level)), Image.LINEAR) for b
+                      in rbands]
+            zoomed_image = Image.merge('RGBA', rbands)
+            triggered_image = Image.open("content/filters/triggered.png")
+            tbands = triggered_image.split()
+            tbands = [b.resize((image.width + 20, int(image.height // 4) + 20), Image.LINEAR) for b in tbands]
+            triggered_image = Image.merge('RGBA', tbands)
+
+            trigger_offsets = [
+                (-((-shake_strength + int(image.size[1] // 5) - 2 * shake_strength) // 2) + shake_strength,
+                 (image.size[1] - (int(triggered_image.size[1]) - int(image.size[1] // 5))) - (
+                             int(triggered_image.size[1]) // 2 + shake_strength)),
+                (-((-shake_strength + int(image.size[1] // 5) - 2) // 2) + shake_strength,
+                 (image.size[1] - (int(triggered_image.size[1] - int(image.size[1] // 5)))) - (
+                             int(triggered_image.size[1]) // 2)),
+                (-((-shake_strength + int(image.size[1] // 5) - 2 * shake_strength) // 2),
+                 (image.size[1] - (int(triggered_image.size[1] - int(image.size[1] // 5)))) - int(
+                     triggered_image.size[1]) // 2 + 2 * shake_strength),
+            ]
+
+            for idx, offset in enumerate(shake_offsets):
+                gif.append(Image.new("RGBA", image.size, (255, 255, 255, 0)))
+                gif[-1].paste(zoomed_image, offset, zoomed_image)
+                gif[-1].paste(triggered_image, (trigger_offsets[idx][0], trigger_offsets[idx][1]), triggered_image)
+
+                alpha = gif[-1].split()[-1]
+                gif[-1] = gif[-1].convert('RGB').convert('P', palette=Image.ADAPTIVE, colors=255)
+                mask = Image.eval(alpha, lambda a: 255 if a <= 128 else 0)
+                gif[-1].paste(255, mask)
+
+            return gif
+
+        # clamp value
+        zoom_level = min(max(0.5, zoom_level), 3.0)
+        shake_strength = min(max(1, shake_strength), 10)
+        if not inv_object or isinstance(inv_object, discord.Member):
+            member = inv_object or ctx.author
+            downloaded_pfp = image_from_url(member.avatar_url, "image/png")
+            resized_pfp = resize(downloaded_pfp, 250)
+            shaked_pfp = shake_and_trigger_image(resized_pfp)
+            await self.save_gif_and_send(shaked_pfp, ctx.channel, file_name="shake.gif")
+            downloaded_pfp.close()
+            resized_pfp.close()
+        else:
+            downloaded_emoji = image_from_url(inv_object.url, "image/png")
+
+            bands = downloaded_emoji.split()
+            width_diff = abs(downloaded_emoji.size[0] - 250)
+            height_diff = abs(downloaded_emoji.size[1] - 250)
+            if height_diff > width_diff:
+                size = (250, downloaded_emoji.size[1] * 250 // downloaded_emoji.size[0])
+            else:
+                size = (downloaded_emoji.size[0] * 250 // downloaded_emoji.size[1], 250)
+            bands = [b.resize(size, Image.LINEAR) for b in bands]
+            resized_emoji = Image.merge('RGBA', bands)
+
+            shaked_emoji = shake_and_trigger_image(resized_emoji)
             await self.save_gif_and_send(shaked_emoji, ctx.channel, file_name="shake.gif")
             downloaded_emoji.close()
             resized_emoji.close()
