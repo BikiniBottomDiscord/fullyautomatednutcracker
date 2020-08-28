@@ -86,6 +86,28 @@ class Fun(commands.Cog):
         embed.add_field(name='Total number of emojis', value=(f'{len(ctx.guild.emojis)}'))
         embed.add_field(name='Boost level:', value=(f'{ctx.guild.premium_tier}'))
         await ctx.send(embed=embed)
+
+    @commands.command()
+    async def ship(self, ctx, member: typing.Optional[discord.Member] = None,
+                   member_2: typing.Optional[discord.Member] = None, *,
+                   to_ship: str = None):
+        if member:
+            member_2 = member_2 or random.choice(ctx.guild.members)
+            chars = sum([ord(i) for i in (member.name + member_2.name)])
+            percentage = chars % 100
+            embed = discord.Embed(title=f":heart: {member.name} x {member_2.name}")
+        elif to_ship:
+            to_ship = to_ship.split("|")
+            if len(to_ship) < 2:
+                to_ship.append((random.choice(ctx.guild.members)).name)
+            chars = sum([ord(i) for i in to_ship[0].strip() + to_ship[1].strip()])
+            percentage = chars % 100
+            embed = discord.Embed(title=f":heart: {to_ship[0]} x {to_ship[1]}",
+                                  color=(random.choice(ctx.author.roles)).color)
+        embed.add_field(name="Love rating:", value="`" + ("|" * int(percentage // 5)) +
+                                                   (" " * (20 - int(percentage // 5))) + f'`\n{percentage}%')
+        await ctx.send(embed=embed)
+
     @commands.command()
     async def howbad(self, ctx, member: discord.Member = None):
         good = [224323277370294275, 448250281097035777, 562642634686988289]
