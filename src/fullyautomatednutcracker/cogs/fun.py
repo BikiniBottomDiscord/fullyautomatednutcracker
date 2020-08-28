@@ -18,7 +18,7 @@ class Fun(commands.Cog):
         self.bot = bot
         username, password, client_secret, client_id = load_reddit_creds()
         self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
-
+        self.bot.good = [224323277370294275, 448250281097035777, 562642634686988289, 368880176970596352]
     @commands.command(aliases=["rps"])
     async def rockpaperscissors(self, ctx):
         """A nice game of Rock Paper Scissors. - Alias: rps"""
@@ -86,15 +86,15 @@ class Fun(commands.Cog):
         embed.add_field(name='Total number of emojis', value=(f'{len(ctx.guild.emojis)}'))
         embed.add_field(name='Boost level:', value=(f'{ctx.guild.premium_tier}'))
         await ctx.send(embed=embed)
+
     @commands.command()
     async def howbad(self, ctx, member: discord.Member = None):
-        good = [224323277370294275, 448250281097035777, 562642634686988289]
         member = ctx.author if not member else member
         if member.id == 304695409031512064:
             embed = discord.Embed(title=(f'{member}\'s badness level'), colour=member.color)
             embed.add_field(name="They are:", value=(f'100% Bad(dmb)'))
             await ctx.send(embed=embed)
-        elif member.id in good:
+        elif member.id in self.bot.good:
             embed = discord.Embed(title=(f'{member}\'s Good level'), colour=member.color)
             embed.add_field(name="They are:", value=(f'100% Good'))
             await ctx.send(embed=embed)
@@ -102,6 +102,12 @@ class Fun(commands.Cog):
             embed = discord.Embed(title=(f'{ctx.author}\'s badness level'), colour=member.color)
             embed.add_field(name="They are:", value=(f'{random.randint(1, 75)}% Bad'))
             await ctx.send(embed=embed)
+
+    @commands.command()
+    async def add_good(self,ctx, member:discord.Member):
+        self.bot.good.appened(member.id)
+        await ctx.send('Added To Good Person List')
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
