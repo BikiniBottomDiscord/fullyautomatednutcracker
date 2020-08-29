@@ -295,8 +295,8 @@ class Filters(commands.Cog):
         if not done:
             # hard cap, force a split
             if ' ' not in message:
-                top = message[len(message)//2:]
-                bottom = message[:len(message)//2]
+                top = message[:len(message)//2]
+                bottom = message[len(message)//2:]
             else:
                 # message || message a
                 # a message || message
