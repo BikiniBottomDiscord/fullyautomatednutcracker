@@ -1,3 +1,6 @@
+# Ignore bad words
+src/config/blacklisted_tokens.list
+
 # Ignore project files
 .idea/
 *.save
