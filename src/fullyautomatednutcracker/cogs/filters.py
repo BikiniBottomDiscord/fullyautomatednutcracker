@@ -6,6 +6,7 @@ from discord.ext import commands
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 from utils.common_imaging import image_from_url, resize
+from utils.common import has_blacklisted_word
 
 
 class Filters(commands.Cog):
@@ -265,6 +266,8 @@ class Filters(commands.Cog):
             return await ctx.channel.send(f"**Error**: No message used. Messages must be between 1 and {limit} characters.")
         elif 0 >= len(message) > limit:
             return await ctx.channel.send(f"**Error**: Messages must be between 1 and {limit} characters.")
+        elif has_blacklisted_word(message):
+            return await ctx.channel.send(f"**Error**: That message has a blacklisted word in it.")
 
         # Load the background
         base_hype = Image.open('content/filters/hypesign01.png')
