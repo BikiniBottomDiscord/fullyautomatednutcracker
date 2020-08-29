@@ -32,10 +32,11 @@ def load_admins():
 def load_blacklist():
     global BLACKLIST_TOKENS
     with open('config/blacklisted_tokens.list') as fp:
-        BLACKLIST_TOKENS = list(fp.readlines())
+        BLACKLIST_TOKENS = list([l.strip().lstrip().lower() for l in fp.readlines()])
 
 
 def has_blacklisted_word(string):
+    string = string.lower()
     for token in BLACKLIST_TOKENS:
         if token in string:
             return True
