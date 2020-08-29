@@ -3,7 +3,7 @@ import io
 import typing
 
 from discord.ext import commands
-from PIL import Image, ImageOps
+from PIL import Image, ImageOps, ImageDraw, ImageFont
 
 from utils.common_imaging import image_from_url, resize
 
@@ -254,6 +254,92 @@ class Filters(commands.Cog):
             await self.save_gif_and_send(shaked_emoji, ctx.channel, file_name="spin.gif", duration=speed)
             downloaded_emoji.close()
             resized_emoji.close()
+
+    @commands.command(aliases=['hs', 'hypesay'])
+    async def hypesign(self, ctx, *, message=""):
+        # Verify shit
+        limit = 20
+        # Clean message: replace new lines with spaces, remove dupped spaces, ensure ascii-128 characters
+        message = ''.join(c for c in ' '.join(message.replace('\n', ' ').split(' ')) if ord(c) < 128)
+        if message == "":
+            return await ctx.channel.send(f"**Error**: No message used. Messages must be between 1 and {limit} characters.")
+        elif 0 >= len(message) > limit:
+            return await ctx.channel.send(f"**Error**: Messages must be between 1 and {limit} characters.")
+
+        # Load the background
+        base_hype = Image.open('content/filters/hypesign01.png')
+
+        # Load the middleground
+        layer1_hype = Image.open('content/filters/hypesign02.png')
+        base_hype.paste(layer1_hype, (0, 0), layer1_hype)
+
+        # Load a new text object for the sign
+        text_hype = Image.new('RGBA', (490, 220), (0, 0, 0, 0))
+        text_obj = ImageDraw.Draw(text_hype)
+        font_size = 160
+        font = ImageFont.truetype('content/filters/Krabby_Patty.ttf', font_size)
+        done = False
+        while True:
+            w, h = font.getsize(message)
+            if w < text_hype.width - 30:
+                text_obj.text((int((text_hype.width - w)//2), int((text_hype.height - h)//2) - 10), message, 'black', font=font)
+                done = True
+                break
+            font_size -= 5
+            if font_size <= 80:
+                break
+            font = ImageFont.truetype('content/filters/Krabby_Patty.ttf', font_size)
+        if not done:
+            # hard cap, force a split
+            if ' ' not in message:
+                top = message[len(message)//2:]
+                bottom = message[:len(message)//2]
+            else:
+                # message || message a
+                # a message || message
+                words = message.split(' ')
+                picked_diff = 10000000
+                diff1, diff2 = "", ""
+                for idx, word in enumerate(words):
+                    first_half = ' '.join(words[:idx])
+                    second_half = ' '.join(words[idx:])
+                    diff = abs(len(second_half) - len(first_half))
+                    if diff < picked_diff:
+                        diff1 = first_half
+                        diff2 = second_half
+                        picked_diff = diff
+                top = diff1
+                bottom = diff2
+            font_size = 110
+            while True:
+                wt, ht = font.getsize(top)
+                wb, hb = font.getsize(bottom)
+                if max(wt, wb) < text_hype.width - 30 and ht + hb < text_hype.height - 30:
+                    print(f"using font size {font_size} at {int((text_hype.width - w)//2)}, {int((text_hype.height - h)//2)}")
+                    text_obj.text((int((text_hype.width - wt)//2), int((text_hype.height - ht - hb - 10)//2)), top, 'black', font=font)
+                    text_obj.text((int((text_hype.width - wb)//2), int((text_hype.height - ht - hb - 10)//2) + ht), bottom, 'black', font=font)
+                    done = True
+                    break
+                font_size -= 5
+                print(f"decreasing to font size {font_size}")
+                if font_size <= 50:
+                    break
+                font = ImageFont.truetype('content/filters/Krabby_Patty.ttf', font_size)
+        if not done:
+            return await ctx.channel.send(f"**Error**: That text could not be placed.")
+
+        text_hype = text_hype.rotate(-1.0)
+        base_hype.paste(text_hype, (6, 6), text_hype)
+
+        # Load the foreground
+        layer2_hype = Image.open('content/filters/hypesign03.png')
+        base_hype.paste(layer2_hype, (0, 0), layer2_hype)
+
+        # Ship it
+        await self.save_img_and_send(base_hype, ctx.channel, file_name="sign.png")
+        base_hype.close()
+        layer1_hype.close()
+        layer2_hype.close()
 
 
 def setup(bot):
