@@ -9,6 +9,7 @@ from os.path import join, isfile
 
 from utils.global_guild_settings import BotGuildSettings as Settings
 from utils.communityhelpcommand import CommunityHelpCommand
+from utils import common
 
 
 logger = logging.getLogger(__name__)
@@ -35,6 +36,7 @@ async def on_ready():
     logger.info(f"Successfully logged into account {bot.user.name} with id {str(bot.user.id)} and version {version}")
     global STARTED
     if not STARTED:
+        common.load_blacklist()
         await bot.get_channel(Settings.instance.TREEDOME).send(f"Starting up...")
         STARTED = True
 
