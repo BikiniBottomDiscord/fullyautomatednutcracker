@@ -371,10 +371,7 @@ class Filters(commands.Cog):
         base_hype.paste(layer2_hype, (0, 0), layer2_hype)
 
         # Ship it
-        await self.save_img_and_send(base_hype, ctx.channel, file_name="sign.png")
-        base_hype.close()
-        layer1_hype.close()
-        layer2_hype.close()
+        await self.save_img_and_send(ctx.author, base_hype, ctx.channel, file_name="sign.png", things_to_close=(base_hype, layer1_hype, layer2_hype))
 
 
 def setup(bot):
