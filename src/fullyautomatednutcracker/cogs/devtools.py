@@ -116,8 +116,7 @@ class DevTools(commands.Cog):
                 await ctx.send("I couldn't find a command or module with that name.")
                 return
         path = inspect.getsourcefile(obj).replace('\\', '/')
-        return await ctx.send(path)
-        git_path = path[len(HOME_DIR)+1:]
+        git_path = path[len("/home/merona/Servers/fullyautomatednutcracker/"):]
         git_link = f"https://github.com/BikiniBottomDiscord/fullyautomatednutcracker/tree/master/{git_path}"
         print(git_link)
         async with self.session.get(git_link) as response:
