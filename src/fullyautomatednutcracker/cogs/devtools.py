@@ -96,34 +96,35 @@ class DevTools(commands.Cog):
         if isinstance(error, commands.UserInputError):
             await ctx.send("Could not locate a snowflake based on that query.")
 
-    # @commands.command(name='source', aliases=['src'])
-    # async def get_source(self, ctx, name=None):
-    #     if not name:
-    #         await ctx.send("<https://github.com/BikiniBottomDiscord/fullyautomatednutcracker>")
-    #         return
-    #
-    #     if name == 'help':
-    #         obj = self.bot.help_command.__class__
-    #
-    #     else:
-    #         command = self.bot.get_command(name)
-    #         cog = self.bot.get_cog(name)
-    #         if command:
-    #             obj = command.callback
-    #         elif cog:
-    #             obj = cog.__class__
-    #         else:
-    #             await ctx.send("I couldn't find a command or module with that name.")
-    #             return
-    #     path = inspect.getsourcefile(obj).replace('\\', '/')
-    #     git_path = path[len(HOME_DIR)+1:]
-    #     git_link = f"https://github.com/BikiniBottomDiscord/fullyautomatednutcracker/tree/master/{git_path}"
-    #     print(git_link)
-    #     async with self.session.get(git_link) as response:
-    #         if response.status == 404:
-    #             await ctx.send("Command or module is not yet on github.")
-    #             return
-    #     await ctx.send(f"<{git_link}>")
+    @commands.command(name='source', aliases=['src'])
+    async def get_source(self, ctx, name=None):
+        if not name:
+            await ctx.send("<https://github.com/BikiniBottomDiscord/fullyautomatednutcracker>")
+            return
+
+        if name == 'help':
+            obj = self.bot.help_command.__class__
+
+        else:
+            command = self.bot.get_command(name)
+            cog = self.bot.get_cog(name)
+            if command:
+                obj = command.callback
+            elif cog:
+                obj = cog.__class__
+            else:
+                await ctx.send("I couldn't find a command or module with that name.")
+                return
+        path = inspect.getsourcefile(obj).replace('\\', '/')
+        return await ctx.send(path)
+        git_path = path[len(HOME_DIR)+1:]
+        git_link = f"https://github.com/BikiniBottomDiscord/fullyautomatednutcracker/tree/master/{git_path}"
+        print(git_link)
+        async with self.session.get(git_link) as response:
+            if response.status == 404:
+                await ctx.send("Command or module is not yet on github.")
+                return
+        await ctx.send(f"<{git_link}>")
 
 
 def setup(bot):
