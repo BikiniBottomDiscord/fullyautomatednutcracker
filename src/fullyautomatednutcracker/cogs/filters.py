@@ -60,7 +60,7 @@ class Filters(commands.Cog):
         if content == 'me':
             image_url = ctx.author.avatar_url
         elif len(ctx.message.attachments) > 0:
-            image_url = ctx.channel.attachments[0]
+            image_url = ctx.message.attachments[0].url
         elif re.match(self.url_regex, content):
             image_url = content
         # RED ALERT :: RED ALERT :: WRETCHED CODE BELOW :: UPDATE WHEN PY3.8 IS INSTALLED :: RED ALERT :: RED ALERT
