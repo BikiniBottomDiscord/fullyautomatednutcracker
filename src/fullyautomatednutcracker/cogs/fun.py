@@ -105,7 +105,7 @@ class Fun(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
-    @checks.lifeguard()
+    @checks.is_admin()
     async def add_good(self,ctx, member:discord.Member):
         self.bot.good.appened(member.id)
         await ctx.send('Added To Good Person List')
