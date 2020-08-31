@@ -6,7 +6,19 @@ from PIL import Image, ImageDraw, ImageFont
 
 def resize(im, size):
     bands = im.split()
-    bands = [b.resize((size, size), Image.LINEAR) for b in bands]
+    bands = [b.resize(size, Image.LINEAR) for b in bands]
+    return Image.merge('RGBA', bands)
+
+
+def resize_to_nearest(image, square_size=250):
+    bands = image.split()
+    width_diff = abs(image.width - 250)
+    height_diff = abs(image.height - 250)
+    if height_diff > width_diff:
+        size = (250, image.height * 250 // image.width)
+    else:
+        size = (image.width * 250 // image.height, 250)
+    bands = [b.resize(size, Image.LINEAR) for b in bands]
     return Image.merge('RGBA', bands)
 
 
