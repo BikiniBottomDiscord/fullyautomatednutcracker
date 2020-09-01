@@ -10,14 +10,14 @@ def resize(im, size):
     return Image.merge('RGBA', bands)
 
 
-def resize_to_nearest(image, square_size=250):
+def resize_to_nearest(image, square_size):
     bands = image.split()
-    width_diff = abs(image.width - 250)
-    height_diff = abs(image.height - 250)
+    width_diff = abs(image.width - square_size)
+    height_diff = abs(image.height - square_size)
     if height_diff > width_diff:
-        size = (250, image.height * 250 // image.width)
+        size = (square_size, image.height * square_size // image.width)
     else:
-        size = (image.width * 250 // image.height, 250)
+        size = (image.width * square_size // image.height, square_size)
     bands = [b.resize(size, Image.LINEAR) for b in bands]
     return Image.merge('RGBA', bands)
 
