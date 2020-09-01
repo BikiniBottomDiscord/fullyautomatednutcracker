@@ -24,6 +24,10 @@ class AntiSelfDeprecation(commands.Cog):
         elif message.content.lower().startswith(self.not_dumb):
             await message.channel.send('Correct.')
 
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.content.lower() == 'yoshi man good':
+            await message.add_reaction('\U0001F49A')
 
 def setup(bot):
     bot.add_cog(AntiSelfDeprecation(bot))
