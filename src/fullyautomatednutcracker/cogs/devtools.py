@@ -57,7 +57,6 @@ class DevTools(commands.Cog):
             # int conversion worked, send list of perms
             desc = f"Permissions integer `{value}` will grant these perms: \n"
             desc += "".join([("- " + perm + "\n") for perm, val in p if val])
-            embed = self.bot.Embed(description=desc)
             await ctx.send(desc)
             return
         else:

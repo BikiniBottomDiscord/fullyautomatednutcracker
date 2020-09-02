@@ -19,7 +19,16 @@ class Fun(commands.Cog):
         self.bot = bot
         username, password, client_secret, client_id = load_reddit_creds()
         self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
+        self.aww_submissions = []
         self.bot.good = [224323277370294275, 448250281097035777, 562642634686988289, 368880176970596352]
+
+    async def get_submission(self, subreddit):
+        if len(self.aww_submissions) == 0:
+            async for submission in subreddit.hot(limit=25):
+                if submission.pinned is False:
+                    self.aww_submissions.append(submission)
+        return random.choice(self.aww_submissions)
+
     @commands.command(aliases=["rps"])
     async def rockpaperscissors(self, ctx):
         """A nice game of Rock Paper Scissors. - Alias: rps"""
@@ -48,11 +57,8 @@ class Fun(commands.Cog):
     @commands.command(aliases=['coot', 'cute'])
     async def aww(self, ctx):
         subreddit = await self.bot.reddit.subreddit('aww')
-        submissions = []
-        async for submission in subreddit.hot(limit=50):
-            if submission.pinned is False:
-                submissions.append(submission)
-        post = random.choice(submissions)
+        post = await self.get_submission(subreddit)
+        self.aww_submissions.remove(post)
         author = await post.author()
         url = 'https://reddit.com' + post.permalink
         embed = discord.Embed(color=ctx.author.color)
@@ -62,8 +68,7 @@ class Fun(commands.Cog):
         embed.set_image(url=post.url)
         embed.set_footer(text='*if image isn\'t working then it probably is a video*')
         await ctx.send(embed=embed)
-    
-    
+
     @commands.command(aliases=['mc'])
     async def membercount(self,ctx):
         await ctx.send(f'The Current Member Count Is: {len(ctx.guild.members)}')

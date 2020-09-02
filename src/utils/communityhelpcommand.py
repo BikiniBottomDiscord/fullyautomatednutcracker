@@ -2,7 +2,7 @@ from discord.ext import commands
 import itertools
 import discord
 
-# rev or dove or anyone else seeing this pls ignore the awful parts and feel freel to change anything - mine
+# rev or dove or anyone else seeing this pls ignore the awful parts and feel free to change anything - mine
 
 
 class CommunityHelpCommand(commands.HelpCommand):
@@ -18,6 +18,43 @@ class CommunityHelpCommand(commands.HelpCommand):
         self.paginator = commands.Paginator(suffix=None, prefix=None)
 
         super().__init__(**options)
+
+    async def command_callback(self, ctx, *, command=None):
+        await self.prepare_help_command(ctx, command)
+        bot = ctx.bot
+        if command is None:
+            mapping = self.get_bot_mapping()
+            return await self.send_bot_help(mapping)
+        if command.lower() == 'no category':
+            embed = await self.build_no_category_embed(ctx)
+            return await self.send_pages(embed)
+        cog = bot.get_cog(command)
+        if cog is not None:
+            return await self.send_cog_help(cog)
+        maybe_coro = discord.utils.maybe_coroutine
+        keys = command.split()
+        cmd = bot.all_commands.get(keys[0])
+        if cmd is None:
+            string = await maybe_coro(self.command_not_found, self.remove_mentions(keys[0]))
+            return await self.send_error_message(string)
+
+        for key in keys[1:]:
+            try:
+                found = cmd.all_commands.get(key)
+            except AttributeError:
+                string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
+                return await self.send_error_message(string)
+            else:
+                if found is None:
+                    string = await maybe_coro(self.subcommand_not_found, cmd, self.remove_mentions(key))
+                    return await self.send_error_message(string)
+
+    async def build_no_category_embed(self, ctx):
+        bot = ctx.bot
+        embed = discord.Embed()
+        command_names = [command.qualified_name for command in bot.walk_commands() if not command.cog]
+        embed.add_field(name='No category', value=', '.join(command_names))
+        return embed
 
     async def send_error_message(self, error):
         pass
