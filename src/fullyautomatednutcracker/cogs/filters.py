@@ -339,6 +339,10 @@ class Filters(commands.Cog):
         # Shake the image
         shaked_emoji = shake_image(resized_image)
 
+        # Set the max speed if it wasn't set
+        if arguments.duration == -1:
+            arguments.duration = 20
+
         # Ship it
         await self.save_gif_and_send(arguments, ctx.author, ctx.channel, shaked_emoji, file_name="shake", things_to_close=(download.image, resized_image) + tuple(shaked_emoji))
         del download
@@ -404,6 +408,10 @@ class Filters(commands.Cog):
 
         # Spin the image
         spun_image = spin_image(resized_image)
+
+        # Set the max speed if it wasn't set
+        if arguments.duration == -1:
+            arguments.duration = 20
 
         await self.save_gif_and_send(arguments, ctx.author, ctx.channel, spun_image, file_name="spin", things_to_close=(download.image, resized_image) + tuple(spun_image))
         del download
