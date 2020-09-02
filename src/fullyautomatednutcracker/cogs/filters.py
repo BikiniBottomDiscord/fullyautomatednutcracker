@@ -679,7 +679,10 @@ class Filters(commands.Cog):
             download.frames[idx] = self.do_arg_resize(frame, arguments).filter(ImageFilter.GaussianBlur(radius=arguments.blur_radius))
 
         # Ship it
-        await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="blur", things_to_close=(download.image,))
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="blur", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="blur", things_to_close=(download.image,))
         del download
 
     @commands.command(aliases=['convolve', 'convolutionize'])
