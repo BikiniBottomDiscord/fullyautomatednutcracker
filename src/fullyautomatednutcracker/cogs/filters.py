@@ -8,7 +8,7 @@ import argparse
 import random
 
 from discord.ext import commands
-from PIL import Image, ImageOps, ImageDraw, ImageFont
+from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageFilter
 
 from utils import common_imaging
 from utils.argparse_but_better import ArgumentParser
@@ -26,9 +26,10 @@ class DownloadedAsset:
         if not supposed_gif:
             self.frames = [self.image]
         else:
-            self.frames = []
+            self.frames = [image.convert('RGBA')]
             try:
                 while True:
+                    print('frame')
                     image.seek(image.tell()+1)
                     # do something to im
                     self.frames.append(image.convert('RGBA'))
@@ -62,7 +63,7 @@ class Filters(commands.Cog):
         self.parser.add_argument('--transparency', type=int, default=255, help="Specifies what alpha level is considered transparent. Valid between 0 and 255.", choices=[ArgumentParser.Range(0, 255)])
         # GIF Output
         self.parser.add_argument('--disposal', type=int, default=2, help="Sets the disposal setting. 0 - do whatever, idk, 1 - do not dispose any colors, 2 - restore each frame to the background color, 3 - restore each frame to previous frame color.", choices=[ArgumentParser.Range(0, 3)])
-        self.parser.add_argument('--duration', type=int, default=20, help="The duration in milliseconds each GIF frame should be. Valid between 1ms and 2500ms.", choices=[ArgumentParser.Range(1, 2500)])
+        self.parser.add_argument('--duration', type=int, default=-1, help="The duration in milliseconds each GIF frame should be. Valid between 1ms and 2500ms.", choices=[ArgumentParser.Range(1, 2500)])
         self.parser.add_argument('--no-loop', default=False, help="Specifies whether the GIF should loop or not.", action="store_true")
         # PNG Output
         # None that general doesn't have
@@ -80,6 +81,8 @@ class Filters(commands.Cog):
         self.parser.add_argument('--spin-frames', type=int, default=20, help="Specifies the number of rotations in the GIF. Valid between 2 and 60", choices=[ArgumentParser.Range(2, 60)])
         self.parser.add_argument('--spin-no-crop', default=False, help="Specifies whether the GIF should be cropped with a circle or not.", action="store_true")
         self.parser.add_argument('--spin-expand', default=False, help="Specifies whether the GIF should be expanded to ensure it entirely fits in the end result", action="store_true")
+        # Blur Command
+        self.parser.add_argument('--blur-radius', type=int, default=2, help="Specifies the radius (in pixels) to blur with. Valid between 1 and 100", choices=[ArgumentParser.Range(1, 100)])
 
     async def wrapped_converter(self, converter, ctx, argument):
         try:
@@ -88,7 +91,7 @@ class Filters(commands.Cog):
         except:
             return None
 
-    async def get_asset_from_user(self, ctx, allow_images=True, allow_gifs=False) -> typing.Union[DownloadedAsset, None]:
+    async def get_asset_from_user(self, arguments, ctx, allow_images=True, allow_gifs=False) -> typing.Union[DownloadedAsset, None]:
         content = ' '.join(ctx.message.content.split(' ')[1:]).split()
         content = content[0] if len(content) > 0 else ""
         # Fetch a url
@@ -134,6 +137,8 @@ class Filters(commands.Cog):
                 ctype = headers["Content-Type"]
             download = common_imaging.image_from_url(image_url, ctype)
             self.user_image_cache[ctx.author.id] = [image_url, datetime.datetime.now().timestamp()]
+            if ctype == "image/gif" and arguments.duration == -1:
+                arguments.duration = download.info['duration'] if 'duration' in download.info else 20
             return DownloadedAsset(download, ctype == "image/gif")
         except:
             await ctx.channel.send("**Error**: I could not download or convert that file!")
@@ -183,10 +188,11 @@ class Filters(commands.Cog):
 
     @commands.command()
     async def image(self, ctx):
+        f"""asdasd{self.bot.user.name}"""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx, allow_gifs=True)
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
         if not download:
             return
         for idx, frame in enumerate(download.frames):
@@ -205,24 +211,27 @@ class Filters(commands.Cog):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx)
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
         if not download:
             return
 
-        # Take the image and resize it with locked aspect ratio to the nearest 250x250
-        resized_image = self.do_arg_resize(download.image, arguments)
-
         # Open the filter
         gay_filter = Image.open('content/filters/gaygaygay.png')
+        resized_filter = None
 
-        # Take the filter and resize it with unlocked aspect ratio to the new image size
-        resized_filter = common_imaging.resize(gay_filter, resized_image.size)
-
-        # Paste the filter onto the frame
-        resized_image.paste(resized_filter, (0, 0), resized_filter)
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+            if not resized_filter:
+                resized_filter = common_imaging.resize(gay_filter, download.frames[idx].size)
+            # Paste the filter onto the frame
+            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
 
         # Ship it
-        await self.save_img_and_send(arguments, ctx.author, ctx.channel, resized_image, file_name="gaygaygay", things_to_close=(download.image, resized_image, gay_filter, resized_filter))
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="gaygaygay", things_to_close=(download.image, gay_filter, resized_filter))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="gaygaygay", things_to_close=(download.image, gay_filter, resized_filter))
         del download
 
     @commands.command(aliases=["inv"])
@@ -230,20 +239,24 @@ class Filters(commands.Cog):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx)
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
         if not download:
             return
 
-        # Take the image and resize it with locked aspect ratio to the nearest 250x250
-        resized_image = self.do_arg_resize(download.image, arguments)
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
 
-        # Invert the resized image
-        bands = resized_image.split()
-        bands = [ImageOps.invert(b) for b in bands[:-1]] + [bands[-1]]
-        resized_image = Image.merge('RGBA', bands)
+            # Invert the resized image
+            bands = download.frames[idx].split()
+            bands = [ImageOps.invert(b) for b in bands[:-1]] + [bands[-1]]
+            download.frames[idx] = Image.merge('RGBA', bands)
 
         # Ship it
-        await self.save_img_and_send(arguments, ctx.author, ctx.channel, resized_image, file_name="invert", things_to_close=(download.image, resized_image))
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="invert", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="invert", things_to_close=(download.image,))
         del download
 
     @commands.command(aliases=['hypeify', 'hypeme'])
@@ -251,7 +264,7 @@ class Filters(commands.Cog):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx)
+        download = await self.get_asset_from_user(arguments, ctx)
         if not download:
             return
 
@@ -277,7 +290,7 @@ class Filters(commands.Cog):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx)
+        download = await self.get_asset_from_user(arguments, ctx)
         if not download:
             return
 
@@ -331,11 +344,11 @@ class Filters(commands.Cog):
         await self.save_gif_and_send(arguments, ctx.author, ctx.channel, shaked_emoji, file_name="shake", things_to_close=(download.image, resized_image) + tuple(shaked_emoji))
         del download
 
-    @commands.command(aliases=['rotate', 'spincc', 'scc', 'rcc', 'rotatecc'])
+    @commands.command(aliases=['rotate', 'spincc', 'scc', 'rcc', 'rotatecc', 'spinleft'])
     async def spin(self, ctx):
         await self._spin(ctx, direction=1)
 
-    @commands.command(aliases=['antirotate', 'spinc', 'sc', 'rc', 'rotatec'])
+    @commands.command(aliases=['antirotate', 'spinc', 'sc', 'rc', 'rotatec', 'spinright'])
     async def antispin(self, ctx):
         await self._spin(ctx, direction=-1)
 
@@ -343,7 +356,7 @@ class Filters(commands.Cog):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
-        download = await self.get_asset_from_user(ctx)
+        download = await self.get_asset_from_user(arguments, ctx)
         if not download:
             return
 
@@ -487,6 +500,243 @@ class Filters(commands.Cog):
 
         # Ship it
         await self.save_img_and_send(arguments, ctx.author, ctx.channel, base_hype, file_name="sign", things_to_close=(base_hype, layer1_hype, layer2_hype))
+
+    @commands.command(aliases=['horizontal', 'hflip', 'hswap'])
+    async def flip(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+            download.frames[idx] = download.frames[idx].transpose(Image.FLIP_LEFT_RIGHT)
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="flip", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="flip", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['vertical', 'verticle', 'vflip', 'vswap'])
+    async def swap(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+            download.frames[idx] = download.frames[idx].transpose(Image.FLIP_TOP_BOTTOM)
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="swap", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="swap", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['hm', 'haah'])
+    async def hmirror(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            left = self.do_arg_resize(frame, arguments)
+            new_image = Image.new('RGBA', left.size)
+            left = left.crop((0, 0, left.width // 2, left.height))
+            right = left.transpose(Image.FLIP_LEFT_RIGHT)
+
+            new_image.paste(left, (0, 0), left)
+            new_image.paste(right, (left.width, 0), right)
+
+            download.frames[idx] = new_image
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="hmirror", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="hmirror", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['ihm', 'waaw'])
+    async def invhmirror(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            right = self.do_arg_resize(frame, arguments)
+            new_image = Image.new('RGBA', right.size)
+            right = right.crop((right.width // 2, 0, right.width, right.height))
+            left = right.transpose(Image.FLIP_LEFT_RIGHT)
+
+            new_image.paste(left, (0, 0), left)
+            new_image.paste(right, (left.width, 0), right)
+
+            download.frames[idx] = new_image
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="invhmirror", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="invhmirror", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['vm', 'hooh'])
+    async def vmirror(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            bottom = self.do_arg_resize(frame, arguments)
+            new_image = Image.new('RGBA', bottom.size)
+            bottom = bottom.crop((0, bottom.height // 2, bottom.width, bottom.height))
+            top = bottom.transpose(Image.FLIP_TOP_BOTTOM)
+
+            new_image.paste(top, (0, 0), top)
+            new_image.paste(bottom, (0, top.height), bottom)
+
+            download.frames[idx] = new_image
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="vmirror", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="vmirror", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['ivm', 'woow'])
+    async def invvmirror(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            top = self.do_arg_resize(frame, arguments)
+            new_image = Image.new('RGBA', top.size)
+            top = top.crop((0, 0, top.width, top.height // 2))
+            bottom = top.transpose(Image.FLIP_TOP_BOTTOM)
+
+            new_image.paste(top, (0, 0), top)
+            new_image.paste(bottom, (0, top.height), bottom)
+
+            download.frames[idx] = new_image
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="invvmirror", things_to_close=(download.image,))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="invvmirror", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['rewind'])
+    async def reverse(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True, allow_images=False)
+        if not download:
+            return
+        download.frames.reverse()
+        download.image = download.frames[0]
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+
+        # Ship it
+        await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="reverse", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['gaussian'])
+    async def blur(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments).filter(ImageFilter.GaussianBlur(radius=arguments.blur_radius))
+
+        # Ship it
+        await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="blur", things_to_close=(download.image,))
+        del download
+
+    @commands.command(aliases=['convolve', 'convolutionize'])
+    async def kernel(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx)
+        if not download:
+            return
+
+        download.image = self.do_arg_resize(download.image, arguments)
+        backdrop = Image.new('RGB', download.image.size, (0, 0, 0))
+        backdrop.paste(download.image, (0, 0), download.image)
+        kernel_image = backdrop.filter(ImageFilter.Kernel(
+            (3, 3),
+            (-1, -1, -1, -1, 11, -2, -2, -2, -2),
+            1
+        ))
+        download.image = kernel_image
+
+        # Ship it
+        await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.image, file_name="kernel", things_to_close=(download.image, backdrop, kernel_image))
+        del download
+
+    @commands.command()
+    async def rgbsplit(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx)
+        if not download:
+            return
+
+        download.image = self.do_arg_resize(download.image, arguments)
+
+        r, g, b, a = download.image.split()
+        black = Image.new('L', download.image.size, 0)
+        r = Image.merge('RGBA', [r, black, black, a])
+        g = Image.merge('RGBA', [black, g, black, a])
+        b = Image.merge('RGBA', [black, black, b, a])
+
+        r.putalpha(128)
+        g.putalpha(128)
+        b.putalpha(128)
+
+        new_image = Image.new('RGBA', download.image.size, (0, 0, 0, 0))
+        new_image.paste(r, (-25, -25), r)
+        new_image.paste(g, (0, 0), g)
+        new_image.paste(b, (25, 25), b)
+
+        download.image = new_image
+
+        # Ship it
+        await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.image, file_name="rgbsplit", things_to_close=(download.image, new_image, r, g, b, black))
+        del download
 
 
 def setup(bot):
