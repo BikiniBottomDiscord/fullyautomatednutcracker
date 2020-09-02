@@ -121,13 +121,12 @@ class Filters(commands.Cog):
         if "Content-Length" not in headers or not headers["Content-Length"].isnumeric():
             await ctx.channel.send("**Error**: I cannot manipulate this image as the file size is unknown.")
             return None
-        # TODO uncomment if this starts to get out of hand...
-        # if (headers["Content-Type"] == "image/png" or headers["Content-Type"] == "image/jpeg") and int(headers["Content-Length"]) > 512000:
-        #     await ctx.channel.send("**Error**: The image is too big! It must be less than 512 KB.")
-        #     return None
-        # if headers["Content-Type"] == "image/gif" and int(headers["Content-Length"]) > 1500000:
-        #     await ctx.channel.send("**Error**: The gif is too big! It must be less than 1.5 MB.")
-        #     return None
+        if (headers["Content-Type"] == "image/png" or headers["Content-Type"] == "image/jpeg" or headers["Content-Type"] == "image/webp") and int(headers["Content-Length"]) > 1500000:
+            await ctx.channel.send("**Error**: The image is too big! It must be less than 1.5 MB.")
+            return None
+        if headers["Content-Type"] == "image/gif" and int(headers["Content-Length"]) > 15000000:
+            await ctx.channel.send("**Error**: The gif is too big! It must be less than 15 MB.")
+            return None
         try:
             if not allow_gifs and headers["Content-Type"] == "image/gif":
                 ctype = "image/png"
