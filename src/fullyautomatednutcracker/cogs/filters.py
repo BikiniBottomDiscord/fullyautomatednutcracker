@@ -115,8 +115,8 @@ class Filters(commands.Cog):
             return None
         # Sanitize and check it
         headers = requests.head(image_url).headers
-        if "Content-Type" not in headers or ("image/png" not in headers["Content-Type"] and "image/jpeg" not in headers["Content-Type"] and "image/gif" not in headers["Content-Type"]):
-            await ctx.channel.send("**Error**: That url does not appear to point to a '.png', '.jpeg/.jpg' or '.gif'. These are the only supported image manipulation types.")
+        if "Content-Type" not in headers or ("image/png" not in headers["Content-Type"] and "image/jpeg" not in headers["Content-Type"] and "image/webp" not in headers["Content-Type"] and "image/gif" not in headers["Content-Type"]):
+            await ctx.channel.send("**Error**: That url does not appear to point to a '.png', '.jpeg/.jpg', '.webp' or '.gif'. These are the only supported image manipulation types.")
             return None
         if "Content-Length" not in headers or not headers["Content-Length"].isnumeric():
             await ctx.channel.send("**Error**: I cannot manipulate this image as the file size is unknown.")
@@ -131,7 +131,7 @@ class Filters(commands.Cog):
         try:
             if not allow_gifs and headers["Content-Type"] == "image/gif":
                 ctype = "image/png"
-            elif not allow_images and (headers["Content-Type"] == "image/png" or headers["Content-Type"] == "image/jpeg"):
+            elif not allow_images and (headers["Content-Type"] == "image/png" or headers["Content-Type"] == "image/jpeg" or  headers["Content-Type"] == "image/webp"):
                 ctype = "image/gif"
             else:
                 ctype = headers["Content-Type"]
