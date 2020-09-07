@@ -39,6 +39,14 @@ async def on_ready():
         common.load_blacklist()
         await bot.get_channel(Settings.instance.TREEDOME).send(f"Starting up...")
         STARTED = True
+        
+
+@bot.event
+async def on_message(message):
+    # if not message.guild:  # with this here, commands won't work in DM.
+    #     return
+    if message.channel.id != Settings.instance.JELLYFISH_FIELDS or common.is_admin(message.author):  # disables commands in jellyfish fields for non-mods
+        await bot.process_commands(message)
 
 
 cog_dir = "fullyautomatednutcracker/cogs"
