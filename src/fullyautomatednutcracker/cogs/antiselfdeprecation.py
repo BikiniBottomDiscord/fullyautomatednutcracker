@@ -1,6 +1,9 @@
 from discord.ext import commands
 import asyncio
 
+import time
+
+
 
 class AntiSelfDeprecation(commands.Cog):
     def __init__(self, bot):
@@ -28,6 +31,17 @@ class AntiSelfDeprecation(commands.Cog):
     async def on_message(self, message):
         if message.content.lower() == 'yoshi man good':
             await message.add_reaction('\U0001F49A')
+
+    # bump timer, waits 2 hours and 30 minutes
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id == 302050872383242240 and 'Bump done' in message.embeds[0].description:
+            bumped = time.monotonic()
+            self.last_bumped = bumped
+            await message.add_reaction(':thumbsup:')
+            await asyncio.sleep(9000)
+            if self.last_bumped == bumped:
+                await message.channel.send('bump timer has expired')
 
 def setup(bot):
     bot.add_cog(AntiSelfDeprecation(bot))
