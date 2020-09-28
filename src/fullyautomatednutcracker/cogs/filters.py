@@ -29,7 +29,6 @@ class DownloadedAsset:
             self.frames = [image.convert('RGBA')]
             try:
                 while True:
-                    print('frame')
                     image.seek(image.tell()+1)
                     # do something to im
                     self.frames.append(image.convert('RGBA'))
@@ -57,6 +56,7 @@ class Filters(commands.Cog):
         self.parser.add_argument('--height', type=int, default=-1, help="Set the height of an image, does not affect width. Overrides --scaled. Valid between 25px and 5,000px.", choices=[ArgumentParser.Range(25, 5000)])
         self.parser.add_argument('--width', type=int, default=-1, help="Set the width of an image, does not affect height. Overrides --scaled. Valid between 25px and 5,000px.", choices=[ArgumentParser.Range(25, 5000)])
         self.parser.add_argument('--unlock-ratio', default=False, help="Scales asset with locked aspect ratio to the size provided. Typically used with --size.", action="store_true")
+        self.parser.add_argument('--rotate', type=int, default=0, help="Rotate the source image by a set degree amount. Valid between -360 and 360 degrees.", choices=[ArgumentParser.Range(-360, 360)])
         # General Output
         self.parser.add_argument('--name', type=str, default='out', help="Set the filename of the outputted asset.")
         self.parser.add_argument('--optimize', default=False, help="Optimize the asset palette. Reduces file size at the expense of color range.", action="store_true")
@@ -83,6 +83,11 @@ class Filters(commands.Cog):
         self.parser.add_argument('--spin-expand', default=False, help="Specifies whether the GIF should be expanded to ensure it entirely fits in the end result", action="store_true")
         # Blur Command
         self.parser.add_argument('--blur-radius', type=int, default=2, help="Specifies the radius (in pixels) to blur with. Valid between 1 and 100", choices=[ArgumentParser.Range(1, 100)])
+        # Among Us Command
+        self.parser.add_argument('--crew-color', type=str, default='random', help="Specifies the color of your crew skin, casual name or hex.")
+        self.parser.add_argument('--crew-scale', type=float, default=1.0, help="Specifies the scale of the mask that cuts out the face. Valid between 0.1 and 1.0", choices=[ArgumentParser.Range(0.1, 1.0)])
+        self.parser.add_argument('--crew-center-x', type=int, default=0, help="Specifies the x-center point for the face-cut mask.")
+        self.parser.add_argument('--crew-center-y', type=int, default=0, help="Specifies the y-center point for the face-cut mask.")
 
     async def wrapped_converter(self, converter, ctx, argument):
         try:
@@ -109,8 +114,10 @@ class Filters(commands.Cog):
         elif await self.wrapped_converter(commands.UserConverter, ctx, content):
             image_url = self.__wrapped_conversion.avatar_url
         elif ctx.author.id in self.user_image_cache and (datetime.datetime.now().timestamp() - self.user_image_cache[ctx.author.id][1]) <= 60 * 15:
-            image_url = self.user_image_cache[ctx.author.id][0]
+            image_url = self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]]
         else:
+            if ctx.author.id in self.user_image_cache:
+                del self.user_image_cache[ctx.author.id]
             await ctx.channel.send("**Error**: I could not find an image in your message or in your 15 minute history.")
             return None
         # Sanitize and check it
@@ -135,7 +142,6 @@ class Filters(commands.Cog):
             else:
                 ctype = headers["Content-Type"]
             download = common_imaging.image_from_url(image_url, ctype)
-            self.user_image_cache[ctx.author.id] = [image_url, datetime.datetime.now().timestamp()]
             if ctype == "image/gif" and arguments.duration == -1:
                 arguments.duration = download.info['duration'] if 'duration' in download.info else 20
             return DownloadedAsset(download, ctype == "image/gif")
@@ -156,7 +162,15 @@ class Filters(commands.Cog):
         img.save(bytes_fp, format="PNG")
         bytes_fp.seek(0)
         message = await channel.send(file=discord.File(bytes_fp, (file_name if arguments.name == "out" else arguments.name) + ".png"))
-        self.user_image_cache[for_user.id] = [message.attachments[0].url, datetime.datetime.now().timestamp()]
+
+        if for_user.id not in self.user_image_cache:
+            self.user_image_cache[for_user.id] = [[], None, -1]
+        self.user_image_cache[for_user.id][1] = datetime.datetime.now().timestamp()
+        if self.user_image_cache[for_user.id][2] != len(self.user_image_cache[for_user.id][0]) - 1:
+            self.user_image_cache[for_user.id][0] = self.user_image_cache[for_user.id][0][:self.user_image_cache[for_user.id][2] + 1]
+        self.user_image_cache[for_user.id][0].append(message.attachments[0].url)
+        self.user_image_cache[for_user.id][2] = len(self.user_image_cache[for_user.id][0]) - 1
+
         for ttc in things_to_close:
             ttc.close()
 
@@ -166,7 +180,15 @@ class Filters(commands.Cog):
                      loop=1 if arguments.no_loop else 0, duration=arguments.duration, transparency=arguments.transparency, disposal=arguments.disposal)
         bytes_fp.seek(0)
         message = await channel.send(file=discord.File(bytes_fp, (file_name if arguments.name == "out" else arguments.name) + ".gif"))
-        self.user_image_cache[for_user.id] = [message.attachments[0].url, datetime.datetime.now().timestamp()]
+
+        if for_user.id not in self.user_image_cache:
+            self.user_image_cache[for_user.id] = [[], None, -1]
+        self.user_image_cache[for_user.id][1] = datetime.datetime.now().timestamp()
+        if self.user_image_cache[for_user.id][2] != len(self.user_image_cache[for_user.id][0]) - 1:
+            self.user_image_cache[for_user.id][0] = self.user_image_cache[for_user.id][0][:self.user_image_cache[for_user.id][2] + 1]
+        self.user_image_cache[for_user.id][0].append(message.attachments[0].url)
+        self.user_image_cache[for_user.id][2] = len(self.user_image_cache[for_user.id][0]) - 1
+
         for ttc in things_to_close:
             ttc.close()
 
@@ -183,7 +205,8 @@ class Filters(commands.Cog):
                 nearest_size = arguments.width
             else:
                 nearest_size = arguments.size
-            return common_imaging.resize_to_nearest(image, nearest_size)
+            resized_image = common_imaging.resize_to_nearest(image, nearest_size)
+            return resized_image.rotate(arguments.rotate)
 
     @commands.command()
     async def image(self, ctx):
@@ -256,9 +279,9 @@ class Filters(commands.Cog):
 
         # Ship it
         if download.is_gif:
-            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="trans_flag_mask",things_to_close=(download.image, gay_filter, resized_filter))
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="trans_flag_mask", things_to_close=(download.image, gay_filter, resized_filter))
         else:
-            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="trans_flag_mask",things_to_close=(download.image, gay_filter, resized_filter))
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="trans_flag_mask", things_to_close=(download.image, gay_filter, resized_filter))
         del download
 
     @commands.command(aliases=["inv"])
@@ -775,6 +798,81 @@ class Filters(commands.Cog):
         # Ship it
         await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.image, file_name="rgbsplit", things_to_close=(download.image, new_image, r, g, b, black))
         del download
+
+    @commands.command(aliases=['amung', 'amongus', 'amungus'])
+    async def among(self, ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx)
+        if not download:
+            return
+
+        # Open the filter
+        face_mask = Image.open('content/filters/among01.png')
+        color_mask = Image.open('content/filters/among02.png')
+        crew_border = Image.open('content/filters/among03.png')
+
+        # Get a color
+        def is_hex_string(c):
+            try:
+                c = c.replace('#', '')
+                if len(c) == 3 or len(c) == 6:
+                    int(c, 16)
+                    return c
+                else:
+                    return None
+            except:
+                return None
+        color = int(common_imaging.hex_string_from_color_name(arguments.crew_color) or is_hex_string(arguments.crew_color) or common_imaging.random_hex_color(), 16)
+        rgba = ((color >> 16) & 255, (color >> 8) & 255, color & 255, 255)
+
+        # Create the crew color and the mask for it
+        crew_filter = Image.new('RGBA', color_mask.size, (0, 0, 0, 0))
+        color_filter = Image.new('RGBA', color_mask.size, rgba)
+        crew_filter.paste(color_filter, (0, 0), color_mask)
+
+        # Create a face mask
+        face_mask.thumbnail(download.image.size)
+        resized_face_mask = face_mask
+        resized_face_mask = common_imaging.resize(resized_face_mask, (int(resized_face_mask.width * arguments.crew_scale), int(resized_face_mask.height * arguments.crew_scale)))
+
+        placed_face_mask = Image.new('RGBA', download.size, (0, 0, 0, 0))
+        min_x = min(download.width - resized_face_mask.width, max(0, int((download.width - resized_face_mask.width) // 2) + arguments.crew_center_x))
+        min_y = min(download.height - resized_face_mask.height, max(0, int((download.height - resized_face_mask.height) // 2) + arguments.crew_center_y))
+        placed_face_mask.paste(resized_face_mask, (min_x, min_y), resized_face_mask)
+
+        extracted_face_mask = Image.new('RGBA', download.size, (0, 0, 0, 0))
+        extracted_face_mask.paste(download.image, (0, 0), placed_face_mask)
+        extracted_face_mask = extracted_face_mask.crop((min_x, min_y, min_x + resized_face_mask.width, min_y + resized_face_mask.height))
+        extracted_face_mask = common_imaging.resize(extracted_face_mask, (604, 454))
+        crew_filter.paste(extracted_face_mask, (63, 254), extracted_face_mask)
+
+        # Place the border
+        crew_filter.paste(crew_border, (0, 0), crew_border)
+
+        # Take the filter and resize it with unlocked aspect ratio to the new image size
+        crew_filter = self.do_arg_resize(crew_filter, arguments)
+
+        # Ship it
+        await self.save_img_and_send(arguments, ctx.author, ctx.channel, crew_filter, file_name="amongus", things_to_close=(download.image, crew_filter, color_filter, crew_border, color_mask, face_mask))
+        del download
+
+    @commands.command(aliases=['u'])
+    async def undo(self, ctx, amount: int=1):
+        if ctx.author.id not in self.user_image_cache:
+            await ctx.channel.send("Nothing to undo.")
+        else:
+            self.user_image_cache[ctx.author.id][2] = max(0, self.user_image_cache[ctx.author.id][2] - amount)
+            await ctx.channel.send(self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]])
+
+    @commands.command(aliases=['r'])
+    async def redo(self, ctx, amount: int=1):
+        if ctx.author.id not in self.user_image_cache:
+            await ctx.channel.send("Nothing to redo.")
+        else:
+            self.user_image_cache[ctx.author.id][2] = min(len(self.user_image_cache[ctx.author.id][0]) - 1, self.user_image_cache[ctx.author.id][2] + amount)
+            await ctx.channel.send(self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]])
 
 
 def setup(bot):
