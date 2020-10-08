@@ -8,6 +8,7 @@ from utils.common import load_reddit_creds
 from utils import checks
 import asyncio
 import random
+import math
 
 # VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']

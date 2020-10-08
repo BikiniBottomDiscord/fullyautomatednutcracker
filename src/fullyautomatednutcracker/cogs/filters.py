@@ -874,6 +874,18 @@ class Filters(commands.Cog):
             self.user_image_cache[ctx.author.id][2] = min(len(self.user_image_cache[ctx.author.id][0]) - 1, self.user_image_cache[ctx.author.id][2] + amount)
             await ctx.channel.send(self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]])
 
+    @commands.command(aliases=['br'])
+    async def backgroundresize(self,ctx):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=False)
+        if not download:
+            return
+        h = 300
+        w = 950
+        resized_download = common_imaging.resize(download.image, (w, h))
+        await self.save_img_and_send(arguments, ctx.author, ctx.channel,resized_download, file_name='Resized_Background', things_to_close=(resized_download, download.image))
 
 def setup(bot):
     bot.add_cog(Filters(bot))
