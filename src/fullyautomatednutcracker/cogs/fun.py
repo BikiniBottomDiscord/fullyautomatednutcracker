@@ -9,6 +9,7 @@ from utils import checks
 import asyncio
 import random
 import math
+import datetime
 
 # VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
@@ -116,6 +117,24 @@ class Fun(commands.Cog):
         self.bot.good.append(member.id)
         await ctx.send('Added To Good Person List')
 
+    @commands.command(aliases=['10k'])
+    async def howlongtil10k(self,ctx):
+        member_count = len(ctx.guild.members)
+        today = datetime.date.today()
+        sep7_count = 8000
+        sep7 = datetime.date(month=9, day=7, year=2020)
+        growth = member_count - sep7_count # members since september 7th
+        time = (today - sep7).days # days since september 7th
+        members_per_day = growth / time
+        _10k = None
+        for i in range(1, 61): # look at next 60 days (~2 months ish)
+            member_count += members_per_day
+            if i % 5 == 0: # only look at once every 5 days to simplify things a little
+                print(f"day {i}: {round(member_count)}")
+            if member_count >= 10000 and not _10k:
+                _10k = i
+        await ctx.send(f"{members_per_day} members per day")
+        await ctx.send(f"10k in about {_10k} days")
 
 def setup(bot):
     bot.add_cog(Fun(bot))
