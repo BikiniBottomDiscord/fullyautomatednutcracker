@@ -109,6 +109,14 @@ class Fun(commands.Cog):
             embed = discord.Embed(title=(f'{ctx.author}\'s badness level'), colour=member.color)
             embed.add_field(name="They are:", value=(f'{random.randint(1, 75)}% Bad'))
             await ctx.send(embed=embed)
+    @commands.command():
+    async def modcheck(self, ctx, member: discord.Member = None):
+        member = ctx.author if not member else member
+        modlevel = int(str(member.id)[-2:])
+
+        embed = discord.Embed(title=(f'{member}\'s mod level'), colour=0xff0000 if modlevel > 50 else 0x00ff00)
+        embed.add_field(name="They are:", value=(f'{modlevel}% mod {":flushed:" if modlevel == 69 else ":rainbow_flag:" if modlevel > 50 else ""}'))
+        await ctx.send(embed=embed)
 
     @commands.command()
     @checks.is_admin()
