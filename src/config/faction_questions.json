@@ -1,0 +1,72 @@
+{
+  "Catching Jellyfish is purely for me.": {
+    "sa": ["NR", "SG"],
+    "a": ["NR", "SG"],
+    "n": ["NR"],
+    "d": ["DU"],
+    "sd": ["DU"]
+  },
+  "I like to help others where I can.": {
+    "sa": ["NR"],
+    "a": ["NR", "DU"],
+    "n": ["NR"],
+    "d": ["DU", "SG"],
+    "sd": ["DU", "SG"]
+  },
+  "I want to be on top of the Leaderboards at some point.": {
+    "sa": ["SG"],
+    "a": ["NR", "SG"],
+    "n": ["NR", "DU"],
+    "d": ["NR", "DU"],
+    "sd": ["DU"]
+  },
+  "I don't jellyfish for the jellyfish, I do it if no one else does.": {
+    "sa": ["NR"],
+    "a": ["NR"],
+    "n": ["NR"],
+    "d": ["NR", "DU", "SG"],
+    "sd": ["DU", "SG"]
+  },
+  "I'd be open to licking a doorknob on another planet.": {
+    "sa": ["SG"],
+    "a": ["DU"],
+    "n": ["DU"],
+    "d": ["NR", "DU"],
+    "sd": ["NR", "SG"]
+  },
+  "I think \"for the good of the people\" more than \"for myself\".": {
+    "sa": ["DU"],
+    "a": ["DU"],
+    "n": ["NR"],
+    "d": ["NR", "SG"],
+    "sd": ["SG"]
+  },
+  "I try to mislead new users about how to catch special jellies.": {
+    "sa": ["DU", "SG"],
+    "a": ["DU", "SG"],
+    "n": ["NR", "DU", "SG"],
+    "d": ["NR"],
+    "sd": ["NR"]
+  },
+  "The death of a Jellyfish Bee doesn't bother me.": {
+    "sa": ["SG"],
+    "a": ["DU", "SG"],
+    "n": ["DU", "SG"],
+    "d": ["NR", "DU"],
+    "sd": ["NR"]
+  },
+  "I want to complete my Jellydex.": {
+    "sa": ["SG"],
+    "a": ["NR", "SG"],
+    "n": ["NR", "DU"],
+    "d": ["NR", "DU"],
+    "sd": ["DU"]
+  },
+  "There are way too many Jellyfishers.": {
+    "sa": ["SG"],
+    "a": ["NR", "SG"],
+    "n": ["NR"],
+    "d": ["NR", "DU"],
+    "sd": ["DU"]
+  }
+}
