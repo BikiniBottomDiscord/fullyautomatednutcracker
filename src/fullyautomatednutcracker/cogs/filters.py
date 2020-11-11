@@ -915,5 +915,64 @@ class Filters(commands.Cog):
         resized_download = common_imaging.resize(download.image, (w, h))
         await self.save_img_and_send(arguments, ctx.author, ctx.channel,resized_download, file_name='Resized_Background', things_to_close=(resized_download, download.image))
 
+    async def apply_mask(self,ctx, image):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+
+        # Open the filter
+        filter = Image.open(f'content/filters/{image}')
+        resized_filter = None
+
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+            if not resized_filter:
+                resized_filter = common_imaging.resize(filter, download.frames[idx].size)
+            # Paste the filter onto the frame
+            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name=image.split(".")[0], things_to_close=(download.image, filter, resized_filter))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name=image.split(".")[0], things_to_close=(download.image, filter, resized_filter))
+        del download
+
+    @commands.command(aliases=['ace','ase'])
+    async def asexual(self):
+        await self.apply_mask("asexual_flag_overlay.png")
+
+    @commands.command(aliases=['bisexual'])
+    async def bi(self):
+        await self.apply_mask("bi_flag_overlay.png")
+
+    @commands.command(aliases=['nonbinary','nb'])
+    async def enby(self):
+        await self.apply_mask("enby_flag_overlay.png")
+
+    @commands.command(aliases=['gf','genf'])
+    async def gender_fluid(self):
+        await self.apply_mask("gender_fluid_flag_overlay.png")
+
+    @commands.command(aliases=['gq','genq'])
+    async def gender_queer(self):
+        await self.apply_mask("gender_queer_flag_overlay.png")
+
+    @commands.command(aliases=['les'])
+    async def lesbian(self):
+        await self.apply_mask("lesbian_flag_overlay.png")
+
+    @commands.command(aliases=['pansexual'])
+    async def pan(self):
+        await self.apply_mask("pan_flag_overlay.png")
+
+    @commands.command(aliases=['poly'])
+    async def polysexual(self):
+        await self.apply_mask("polysexual_flag_overlay.png")
+
 def setup(bot):
     bot.add_cog(Filters(bot))
