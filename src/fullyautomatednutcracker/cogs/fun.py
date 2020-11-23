@@ -9,7 +9,6 @@ from utils import checks
 import asyncio
 import random
 import math
-import datetime
 
 # VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
