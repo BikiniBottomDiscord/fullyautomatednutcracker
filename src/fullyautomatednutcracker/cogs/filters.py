@@ -858,7 +858,7 @@ class Filters(commands.Cog):
             await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name=image.split(".")[0], things_to_close=(download.image, filter, resized_filter))
         del download
 
-    @commands.command(aliases=['ace','ase'])
+    @commands.command(aliases=['ace', 'ase'])
     async def asexual(self, ctx):
         await self.apply_mask(ctx, "asexual_flag_overlay.png")
 
@@ -866,15 +866,15 @@ class Filters(commands.Cog):
     async def bi(self, ctx):
         await self.apply_mask(ctx, "bi_flag_overlay.png")
 
-    @commands.command(aliases=['nonbinary','nb'])
-    async def enby(self):
+    @commands.command(aliases=['nonbinary', 'nb'])
+    async def enby(self, ctx):
         await self.apply_mask(ctx, "enby_flag_overlay.png")
 
-    @commands.command(aliases=['gf','genf'])
+    @commands.command(aliases=['gf', 'genf'])
     async def gender_fluid(self, ctx):
         await self.apply_mask(ctx, "gender_fluid_flag_overlay.png")
 
-    @commands.command(aliases=['gq','genq'])
+    @commands.command(aliases=['gq', 'genq'])
     async def gender_queer(self, ctx):
         await self.apply_mask(ctx, "gender_queer_flag_overlay.png")
 
@@ -895,12 +895,13 @@ class Filters(commands.Cog):
         await self.apply_mask(ctx, "trans_flag_mask.png")
 
     @commands.command(aliases=["comrade"])
-    async def commie(self):
-        await self.apply_mask("commie.png")
+    async def commie(self, ctx):
+        await self.apply_mask(ctx, "commie.png")
 
     @commands.command(aliases=["gay", "rainbow", "mod"])
     async def gaygaygay(self, ctx):
         await self.apply_mask(ctx, "gaygaygay.png")
+
 
 def setup(bot):
     bot.add_cog(Filters(bot))
