@@ -228,90 +228,6 @@ class Filters(commands.Cog):
             await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="image")
         del download
 
-    @commands.command(aliases=["gay", "rainbow", "mod"])
-    async def gaygaygay(self, ctx):
-        arguments = await self.get_args_from_message(ctx)
-        if not arguments:
-            return
-        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
-        if not download:
-            return
-
-        # Open the filter
-        gay_filter = Image.open('content/filters/gaygaygay.png')
-        resized_filter = None
-
-        for idx, frame in enumerate(download.frames):
-            # Take the image and resize it with locked aspect ratio to the nearest 250x250
-            download.frames[idx] = self.do_arg_resize(frame, arguments)
-            if not resized_filter:
-                resized_filter = common_imaging.resize(gay_filter, download.frames[idx].size)
-            # Paste the filter onto the frame
-            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
-
-        # Ship it
-        if download.is_gif:
-            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="gaygaygay", things_to_close=(download.image, gay_filter, resized_filter))
-        else:
-            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="gaygaygay", things_to_close=(download.image, gay_filter, resized_filter))
-        del download
-        
-    @commands.command(aliases=["comrade"])
-    async def commie(self, ctx):
-        arguments = await self.get_args_from_message(ctx)
-        if not arguments:
-            return
-        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
-        if not download:
-            return
-
-        # Open the filter
-        commie_filter = Image.open('content/filters/commie.png')
-        resized_filter = None
-
-        for idx, frame in enumerate(download.frames):
-            # Take the image and resize it with locked aspect ratio to the nearest 250x250
-            download.frames[idx] = self.do_arg_resize(frame, arguments)
-            if not resized_filter:
-                resized_filter = common_imaging.resize(commie_filter, download.frames[idx].size)
-            # Paste the filter onto the frame
-            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
-
-        # Ship it
-        if download.is_gif:
-            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="commie", things_to_close=(download.image, commie_filter, resized_filter))
-        else:
-            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="commie", things_to_close=(download.image, commie_filter, resized_filter))
-        del download
-
-    @commands.command(aliases=["tr", "transgender"])
-    async def trans(self, ctx):
-        arguments = await self.get_args_from_message(ctx)
-        if not arguments:
-            return
-        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
-        if not download:
-            return
-
-        # Open the filter
-        gay_filter = Image.open('content/filters/trans_flag_mask.png')
-        resized_filter = None
-
-        for idx, frame in enumerate(download.frames):
-            # Take the image and resize it with locked aspect ratio to the nearest 250x250
-            download.frames[idx] = self.do_arg_resize(frame, arguments)
-            if not resized_filter:
-                resized_filter = common_imaging.resize(gay_filter, download.frames[idx].size)
-            # Paste the filter onto the frame
-            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
-
-        # Ship it
-        if download.is_gif:
-            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name="trans_flag_mask", things_to_close=(download.image, gay_filter, resized_filter))
-        else:
-            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name="trans_flag_mask", things_to_close=(download.image, gay_filter, resized_filter))
-        del download
-
     @commands.command(aliases=["inv"])
     async def invert(self, ctx):
         arguments = await self.get_args_from_message(ctx)
@@ -903,7 +819,7 @@ class Filters(commands.Cog):
             await ctx.channel.send(self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]])
 
     @commands.command(aliases=['br'])
-    async def backgroundresize(self,ctx):
+    async def backgroundresize(self, ctx):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -914,6 +830,77 @@ class Filters(commands.Cog):
         w = 950
         resized_download = common_imaging.resize(download.image, (w, h))
         await self.save_img_and_send(arguments, ctx.author, ctx.channel,resized_download, file_name='Resized_Background', things_to_close=(resized_download, download.image))
+
+    async def apply_mask(self, ctx, image):
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
+        download = await self.get_asset_from_user(arguments, ctx, allow_gifs=True)
+        if not download:
+            return
+
+        # Open the filter
+        filter = Image.open(f'content/filters/{image}')
+        resized_filter = None
+
+        for idx, frame in enumerate(download.frames):
+            # Take the image and resize it with locked aspect ratio to the nearest 250x250
+            download.frames[idx] = self.do_arg_resize(frame, arguments)
+            if not resized_filter:
+                resized_filter = common_imaging.resize(filter, download.frames[idx].size)
+            # Paste the filter onto the frame
+            download.frames[idx].paste(resized_filter, (0, 0), resized_filter)
+
+        # Ship it
+        if download.is_gif:
+            await self.save_gif_and_send(arguments, ctx.author, ctx.channel, download.frames, file_name=image.split(".")[0], things_to_close=(download.image, filter, resized_filter))
+        else:
+            await self.save_img_and_send(arguments, ctx.author, ctx.channel, download.frames[0], file_name=image.split(".")[0], things_to_close=(download.image, filter, resized_filter))
+        del download
+
+    @commands.command(aliases=['ace','ase'])
+    async def asexual(self, ctx):
+        await self.apply_mask(ctx, "asexual_flag_overlay.png")
+
+    @commands.command(aliases=['bisexual'])
+    async def bi(self, ctx):
+        await self.apply_mask(ctx, "bi_flag_overlay.png")
+
+    @commands.command(aliases=['nonbinary','nb'])
+    async def enby(self):
+        await self.apply_mask(ctx, "enby_flag_overlay.png")
+
+    @commands.command(aliases=['gf','genf'])
+    async def gender_fluid(self, ctx):
+        await self.apply_mask(ctx, "gender_fluid_flag_overlay.png")
+
+    @commands.command(aliases=['gq','genq'])
+    async def gender_queer(self, ctx):
+        await self.apply_mask(ctx, "gender_queer_flag_overlay.png")
+
+    @commands.command(aliases=['les'])
+    async def lesbian(self, ctx):
+        await self.apply_mask(ctx, "lesbian_flag_overlay.png")
+
+    @commands.command(aliases=['pansexual'])
+    async def pan(self, ctx):
+        await self.apply_mask(ctx, "pan_flag_overlay.png")
+
+    @commands.command(aliases=['poly'])
+    async def polysexual(self, ctx):
+        await self.apply_mask(ctx, "polysexual_flag_overlay.png")
+
+    @commands.command(aliases=["tr", "transgender"])
+    async def trans(self, ctx):
+        await self.apply_mask(ctx, "trans_flag_mask.png")
+
+    @commands.command(aliases=["comrade"])
+    async def commie(self):
+        await self.apply_mask("commie.png")
+
+    @commands.command(aliases=["gay", "rainbow", "mod"])
+    async def gaygaygay(self, ctx):
+        await self.apply_mask(ctx, "gaygaygay.png")
 
 def setup(bot):
     bot.add_cog(Filters(bot))
