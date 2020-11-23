@@ -819,7 +819,7 @@ class Filters(commands.Cog):
             await ctx.channel.send(self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]])
 
     @commands.command(aliases=['br'])
-    async def backgroundresize(self,ctx):
+    async def backgroundresize(self, ctx):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -831,7 +831,7 @@ class Filters(commands.Cog):
         resized_download = common_imaging.resize(download.image, (w, h))
         await self.save_img_and_send(arguments, ctx.author, ctx.channel,resized_download, file_name='Resized_Background', things_to_close=(resized_download, download.image))
 
-    async def apply_mask(self,ctx, image):
+    async def apply_mask(self, ctx, image):
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -859,48 +859,48 @@ class Filters(commands.Cog):
         del download
 
     @commands.command(aliases=['ace','ase'])
-    async def asexual(self):
-        await self.apply_mask("asexual_flag_overlay.png")
+    async def asexual(self, ctx):
+        await self.apply_mask(ctx, "asexual_flag_overlay.png")
 
     @commands.command(aliases=['bisexual'])
-    async def bi(self):
-        await self.apply_mask("bi_flag_overlay.png")
+    async def bi(self, ctx):
+        await self.apply_mask(ctx, "bi_flag_overlay.png")
 
     @commands.command(aliases=['nonbinary','nb'])
     async def enby(self):
-        await self.apply_mask("enby_flag_overlay.png")
+        await self.apply_mask(ctx, "enby_flag_overlay.png")
 
     @commands.command(aliases=['gf','genf'])
-    async def gender_fluid(self):
-        await self.apply_mask("gender_fluid_flag_overlay.png")
+    async def gender_fluid(self, ctx):
+        await self.apply_mask(ctx, "gender_fluid_flag_overlay.png")
 
     @commands.command(aliases=['gq','genq'])
-    async def gender_queer(self):
-        await self.apply_mask("gender_queer_flag_overlay.png")
+    async def gender_queer(self, ctx):
+        await self.apply_mask(ctx, "gender_queer_flag_overlay.png")
 
     @commands.command(aliases=['les'])
-    async def lesbian(self):
-        await self.apply_mask("lesbian_flag_overlay.png")
+    async def lesbian(self, ctx):
+        await self.apply_mask(ctx, "lesbian_flag_overlay.png")
 
     @commands.command(aliases=['pansexual'])
-    async def pan(self):
-        await self.apply_mask("pan_flag_overlay.png")
+    async def pan(self, ctx):
+        await self.apply_mask(ctx, "pan_flag_overlay.png")
 
     @commands.command(aliases=['poly'])
-    async def polysexual(self):
-        await self.apply_mask("polysexual_flag_overlay.png")
+    async def polysexual(self, ctx):
+        await self.apply_mask(ctx, "polysexual_flag_overlay.png")
 
     @commands.command(aliases=["tr", "transgender"])
-    async def trans(self):
-        await self.apply_mask("trans_flag_mask.png")
+    async def trans(self, ctx):
+        await self.apply_mask(ctx, "trans_flag_mask.png")
 
     @commands.command(aliases=["comrade"])
     async def commie(self):
         await self.apply_mask("commie.png")
 
     @commands.command(aliases=["gay", "rainbow", "mod"])
-    async def gaygaygay(self):
-        await self.apply_mask("gaygaygay.png")
+    async def gaygaygay(self, ctx):
+        await self.apply_mask(ctx, "gaygaygay.png")
 
 def setup(bot):
     bot.add_cog(Filters(bot))
