@@ -113,7 +113,7 @@ class Fun(commands.Cog):
     @commands.command()
     async def modcheck(self, ctx, member: discord.Member = None):
         member = ctx.author if not member else member
-        modlevel = int(str(member.id)[-2:])
+        modlevel = random.randint(1, 100)
 
         embed = discord.Embed(title=(f'{member}\'s mod level'), colour=0xff0000 if modlevel > 50 else 0x00ff00)
         embed.add_field(name="They are:", value=(f'{modlevel}% mod {":flushed:" if modlevel == 69 else ":rainbow_flag:" if modlevel > 50 else ""}'))
