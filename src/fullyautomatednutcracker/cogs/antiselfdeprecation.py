@@ -39,7 +39,7 @@ class AntiSelfDeprecation(commands.Cog):
             bumped = time.monotonic()
             self.last_bumped = bumped
             await message.add_reaction('👍')
-            await asyncio.sleep(9000)
+            await asyncio.sleep(7200)
             if self.last_bumped == bumped:
                 await message.channel.send('<a:filterfeed:693001359934357563> No one\'s bumped our server in over two hours! Disboard keeps us up on the front page! Use `!d bump` to bump us!')
 
