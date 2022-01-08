@@ -14,6 +14,33 @@ from utils import common_imaging
 from utils.argparse_but_better import ArgumentParser
 from utils.common import has_blacklisted_word
 
+from string import ascii_letters
+import textwrap
+
+
+
+def retweets_and_likes_generator(lower_limit, upper_limit):
+    raw_number = random.randint(lower_limit, upper_limit)
+    list_for_raw_number = []
+    for i in str(raw_number):
+        list_for_raw_number.append(i)
+    list_for_raw_number.insert(-3, ",")
+    ratio = ""
+    for i in list_for_raw_number:
+        ratio+= i
+    return ratio
+
+def date_generator():
+    d1 = datetime.datetime.strptime('1/1/2012 1:30 PM', '%m/%d/%Y %I:%M %p')
+    d2 = datetime.datetime.strptime('1/6/2021 4:50 AM', '%m/%d/%Y %I:%M %p')
+    delta = d2 - d1
+    int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
+    random_second = random.randrange(int_delta)
+    newdate = d1 + datetime.timedelta(seconds=random_second)
+    timestamp = newdate.strftime("%I:%M %p").lstrip("0")
+    datestamp = newdate.strftime("%d %b %Y").lstrip("0")
+    return timestamp, datestamp
+
 
 class DownloadedAsset:
     def __init__(self, image: Image, supposed_gif: bool):
@@ -901,6 +928,94 @@ class Filters(commands.Cog):
     @commands.command(aliases=["gay", "rainbow", "mod"])
     async def gaygaygay(self, ctx):
         await self.apply_mask(ctx, "gaygaygay.png")
+        
+        
+    @commands.command(
+        name = "trumptweet",
+        aliases = ['trump', 'trumpet']        
+    )
+    async def djtj(self, ctx, *, text = None):
+        """Trump tweets whatever you say."""
+        
+        text = "".join(text)
+        #await ctx.channel.send("Text converted to string")
+        
+        
+        
+        
+        
+        font = ImageFont.truetype("content/filters/HelveticaNeueLight.ttf", size = 58)
+        
+        # Calculate the average length of a single character of our font.
+        # Note: this takes into account the specific font and font size.
+        avg_char_width = sum(font.getsize(char)[0] for char in ascii_letters) / len(ascii_letters)
+        # Translate this average length into a character count
+        max_char_count = int(1050/ avg_char_width)
+        # Create a wrapped text object using scaled character count
+        text = textwrap.fill(text=text, width=max_char_count)
+        
+        text_image_y_dimension = 100
+        for i in text:
+            if i == "\n":
+                text_image_y_dimension+=60
+        
+        mode = "RGB"
+        size = (1094, text_image_y_dimension)
+        color = (255, 255, 255)
+        text_image = Image.new(mode, size, color)
+        
+        writing_text = ImageDraw.Draw(text_image)
+        writing_text.text(xy=(0, 0), text=text, font=font, fill='#000000')
+        
+        
+        
+        
+        trump_tweet_header_path = "content/filters/trump_tweet_header.png"
+        trump_tweet_footer_path = "content/filters/trump_tweet_footer.png"
+        
+        
+        trump_tweet_footer = Image.open(trump_tweet_footer_path)
+        font_ratio = ImageFont.truetype("content/filters/HelveticaNeueBold.ttf", size = 36)
+        font_datestamp = ImageFont.truetype("content/filters/ArialMdm.ttf", size = 26)
+        retweets = retweets_and_likes_generator(8000, 100000)
+        likes = retweets_and_likes_generator(10000, 250000)
+        trump_tweet_ratio = ImageDraw.Draw(trump_tweet_footer)
+        
+        #the retweets-likes
+        trump_tweet_ratio.text(xy = (42, 45), text = retweets, font = font_ratio, fill = "#438DCB")
+        trump_tweet_ratio.text(xy = (210, 45), text = likes, font = font_ratio, fill = "#438DCB")
+        
+        
+        
+        #the datestamp
+        
+        timestamp, datestamp = date_generator()
+        trump_tweet_ratio.text(xy = (42, 134), text = timestamp, font = font_datestamp, fill = "#6E777E")
+        trump_tweet_ratio.text(xy = (170, 134), text = datestamp, font = font_datestamp, fill = "#6E777E")
+        
+        
+        trump_tweet_header = Image.open(trump_tweet_header_path)
+        
+        
+        
+        trump_tweet_y_dimension = text_image_y_dimension + 338
+        mode = "RGB"
+        size = (1200, trump_tweet_y_dimension)
+        color = (255, 255, 255)
+        trump_tweet = Image.new(mode, size, color)
+        
+        trump_tweet.paste(trump_tweet_header)
+        trump_tweet.paste(text_image, (42, 150))
+        trump_tweet.paste(trump_tweet_footer, (0, text_image_y_dimension+151))
+        
+        
+        trump_tweet_path = "content/trump_tweet.png"
+        
+        trump_tweet.save(trump_tweet_path)
+        
+        with open(trump_tweet_path, "rb") as fh:
+            f = discord.File(fh, filename = "Trump_says.png")
+        await ctx.channel.send(file = f)
 
 
 def setup(bot):
