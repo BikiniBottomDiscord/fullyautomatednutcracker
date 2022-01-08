@@ -938,12 +938,6 @@ class Filters(commands.Cog):
         """Trump tweets whatever you say."""
         
         text = "".join(text)
-        #await ctx.channel.send("Text converted to string")
-        
-        
-        
-        
-        
         font = ImageFont.truetype("content/filters/HelveticaNeueLight.ttf", size = 58)
         
         # Calculate the average length of a single character of our font.
@@ -968,8 +962,6 @@ class Filters(commands.Cog):
         writing_text.text(xy=(0, 0), text=text, font=font, fill='#000000')
         
         
-        
-        
         trump_tweet_header_path = "content/filters/trump_tweet_header.png"
         trump_tweet_footer_path = "content/filters/trump_tweet_footer.png"
         
@@ -986,17 +978,13 @@ class Filters(commands.Cog):
         trump_tweet_ratio.text(xy = (210, 45), text = likes, font = font_ratio, fill = "#438DCB")
         
         
-        
         #the datestamp
         
         timestamp, datestamp = date_generator()
         trump_tweet_ratio.text(xy = (42, 134), text = timestamp, font = font_datestamp, fill = "#6E777E")
         trump_tweet_ratio.text(xy = (170, 134), text = datestamp, font = font_datestamp, fill = "#6E777E")
         
-        
         trump_tweet_header = Image.open(trump_tweet_header_path)
-        
-        
         
         trump_tweet_y_dimension = text_image_y_dimension + 338
         mode = "RGB"
@@ -1009,14 +997,11 @@ class Filters(commands.Cog):
         trump_tweet.paste(trump_tweet_footer, (0, text_image_y_dimension+151))
         
         
-        trump_tweet_path = "content/trump_tweet.png"
+        with io.BytesIO() as image_binary:
+             trump_tweet.save(image_binary, 'PNG')
+             image_binary.seek(0)
+             await ctx.send(file=discord.File(fp=image_binary, filename='trump_says.png'))
         
-        trump_tweet.save(trump_tweet_path)
-        
-        with open(trump_tweet_path, "rb") as fh:
-            f = discord.File(fh, filename = "Trump_says.png")
-        await ctx.channel.send(file = f)
-
 
 def setup(bot):
     bot.add_cog(Filters(bot))
