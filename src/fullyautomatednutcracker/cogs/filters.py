@@ -936,7 +936,9 @@ class Filters(commands.Cog):
     )
     async def djtj(self, ctx, *, text = None):
         """Trump tweets whatever you say."""
-        
+        arguments = await self.get_args_from_message(ctx)
+        if not arguments:
+            return
         text = "".join(text)
         font = ImageFont.truetype("content/filters/HelveticaNeueLight.ttf", size = 58)
         
@@ -997,11 +999,7 @@ class Filters(commands.Cog):
         trump_tweet.paste(trump_tweet_footer, (0, text_image_y_dimension+151))
         
         
-        with io.BytesIO() as image_binary:
-             trump_tweet.save(image_binary, 'PNG')
-             image_binary.seek(0)
-             await ctx.send(file=discord.File(fp=image_binary, filename='trump_says.png'))
-        
+        await self.save_img_and_send(arguments, ctx.author, ctx.channel, trump_tweet, file_name="trump_says", things_to_close=(trump_tweet, trump_tweet_footer, trump_tweet_header))
 
 def setup(bot):
     bot.add_cog(Filters(bot))
