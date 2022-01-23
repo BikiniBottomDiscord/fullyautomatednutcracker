@@ -9,6 +9,7 @@ import random
 
 from discord.ext import commands
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageFilter
+from pilmoji import Pilmoji
 
 from utils import common_imaging
 from utils.argparse_but_better import ArgumentParser
@@ -960,7 +961,7 @@ class Filters(commands.Cog):
         color = (255, 255, 255)
         text_image = Image.new(mode, size, color)
         
-        writing_text = ImageDraw.Draw(text_image)
+        writing_text = Pilmoji(text_image)
         writing_text.text(xy=(0, 0), text=text, font=font, fill='#000000')
         
         
