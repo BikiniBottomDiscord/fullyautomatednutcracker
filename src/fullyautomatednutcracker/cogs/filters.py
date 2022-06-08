@@ -9,7 +9,6 @@ import random
 
 from discord.ext import commands
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageFilter
-from pilmoji import Pilmoji
 
 from utils import common_imaging
 from utils.argparse_but_better import ArgumentParser
