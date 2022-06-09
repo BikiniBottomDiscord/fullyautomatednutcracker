@@ -1003,18 +1003,7 @@ class Filters(commands.Cog):
 
     @commands.command(help = "Adds the morbius face filter to your image", aliases = ['morb',])
     async def morbius(self, ctx, image_link = None):
-        arguments = await self.get_args_from_message(ctx)
-        if not arguments:
-            return
-        img = await self.get_asset_from_user(ctx, image_link)
-        if not img:
-            return
-        img = img.convert("RGBA")
-        morb_img = img.resize((640, 614))
-        morb_mask = Image.open("content/filters/morbius.png").convert("RGBA")
-        morb_img.paste(morb_mask, (0,0), morb_mask)
-        
-        await self.save_img_and_send(arguments, ctx.author, ctx.channel, morb_img, file_name="morbius", things_to_close=(img, morb_img, morb_mask))
+        await self.apply_mask(ctx, "morbius.png")
 
 def setup(bot):
     bot.add_cog(Filters(bot))
