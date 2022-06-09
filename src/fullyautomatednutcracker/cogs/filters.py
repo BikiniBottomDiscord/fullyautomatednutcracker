@@ -1001,5 +1001,9 @@ class Filters(commands.Cog):
         
         await self.save_img_and_send(arguments, ctx.author, ctx.channel, trump_tweet, file_name="trump_says", things_to_close=(trump_tweet, trump_tweet_footer, trump_tweet_header))
 
+    @commands.command(help = "Adds the morbius face filter to your image", aliases = ['morb',])
+    async def morbius(self, ctx, image_link = None):
+        await self.apply_mask(ctx, "morbius.png")
+
 def setup(bot):
     bot.add_cog(Filters(bot))
