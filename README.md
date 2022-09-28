@@ -1,3 +1,9 @@
+### 🎃 WE'RE PARTICIPATING IN HACKTOBERFEST! 🎃
+
+https://github.com/BikiniBottomDiscord/fullyautomatednutcracker/wiki/Hacktoberfest
+
+---
+
 # Fully Automated Nutcracker
 #### *Peels bananas fantastically.*
 
