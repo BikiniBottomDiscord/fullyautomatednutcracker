@@ -237,6 +237,7 @@ class Filters(commands.Cog):
 
     @commands.command()
     async def image(self, ctx):
+        """Returns the last image that sent."""
         f"""asdasd{self.bot.user.name}"""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
@@ -257,6 +258,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=["inv"])
     async def invert(self, ctx):
+        """Inverts the colors of an image."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -282,6 +284,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['hypeify', 'hypeme'])
     async def hypify(self, ctx):
+        """Adds the 20hype arms to an image!"""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -308,6 +311,7 @@ class Filters(commands.Cog):
 
     @commands.command()
     async def shake(self, ctx):
+        """Makes an image shake."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -371,10 +375,12 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['rotate', 'spincc', 'scc', 'rcc', 'rotatecc', 'spinleft'])
     async def spin(self, ctx):
+        """Makes an image spin counter-clockwise."""
         await self._spin(ctx, direction=1)
 
     @commands.command(aliases=['antirotate', 'spinc', 'sc', 'rc', 'rotatec', 'spinright'])
     async def antispin(self, ctx):
+        """Makes an image spin clockwise.""" #Dove, why isn't the normal spin clockwise?
         await self._spin(ctx, direction=-1)
 
     async def _spin(self, ctx, direction):
@@ -440,6 +446,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['hs', 'hypesay'])
     async def hypesign(self, ctx, *, message=""):
+        """20hype holds a placard with your message!"""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -532,6 +539,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['horizontal', 'hflip', 'hswap'])
     async def flip(self, ctx):
+        """Flips an image horizontally."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -552,6 +560,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['vertical', 'verticle', 'vflip', 'vswap'])
     async def swap(self, ctx):
+        """Flips an image vertically."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -572,6 +581,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['hm', 'haah'])
     async def hmirror(self, ctx):
+        """Mirrors an image horizontally (the left side is the source)."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -599,6 +609,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['ihm', 'waaw'])
     async def invhmirror(self, ctx):
+        """Mirrors an image horizontally (the right side is the source)."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -626,6 +637,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['vm', 'hooh'])
     async def vmirror(self, ctx):
+        """Mirrors an image vertically (the bottom half is the source)."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -653,6 +665,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['ivm', 'woow'])
     async def invvmirror(self, ctx):
+        """Mirrors an image vertically (the top half is the source)."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -680,6 +693,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['rewind'])
     async def reverse(self, ctx):
+        """Reverses a gif's image sequence."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -698,6 +712,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['gaussian'])
     async def blur(self, ctx):
+        """Applies a Gaussian blur to an image."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -717,6 +732,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['convolve', 'convolutionize'])
     async def kernel(self, ctx):
+        #idk -Bez
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -740,6 +756,7 @@ class Filters(commands.Cog):
 
     @commands.command()
     async def rgbsplit(self, ctx):
+        """Returns an image that looks like and RGB image merge."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -772,6 +789,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['amung', 'amongus', 'amungus'])
     async def among(self, ctx):
+        """Puts your image inside a crewmate's helmet."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -831,6 +849,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['u'])
     async def undo(self, ctx, amount: int=1):
+        """Ctrl+Z"""
         if ctx.author.id not in self.user_image_cache:
             await ctx.channel.send("Nothing to undo.")
         else:
@@ -839,6 +858,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['r'])
     async def redo(self, ctx, amount: int=1):
+        """Ctrl+Y"""
         if ctx.author.id not in self.user_image_cache:
             await ctx.channel.send("Nothing to redo.")
         else:
@@ -847,6 +867,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['br'])
     async def backgroundresize(self, ctx):
+        """Resizes an image so that it can be used for your Neptune's Helper rank card."""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -887,46 +908,57 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['ace', 'ase'])
     async def asexual(self, ctx):
+        """Applies the asexual flag filter to an image."""
         await self.apply_mask(ctx, "asexual_flag_overlay.png")
 
     @commands.command(aliases=['bisexual'])
     async def bi(self, ctx):
+        """Applies the bisexual flag filter to an image."""
         await self.apply_mask(ctx, "bi_flag_overlay.png")
 
     @commands.command(aliases=['nonbinary', 'nb'])
     async def enby(self, ctx):
+        """Applies the non-binary flag filter to an image."""
         await self.apply_mask(ctx, "enby_flag_overlay.png")
 
     @commands.command(aliases=['gf', 'genf'])
     async def gender_fluid(self, ctx):
+        """Applies the genderfluid flag filter to an image."""
         await self.apply_mask(ctx, "gender_fluid_flag_overlay.png")
 
     @commands.command(aliases=['gq', 'genq'])
     async def gender_queer(self, ctx):
+        """Applies the genderqueer flag filter to an image."""
         await self.apply_mask(ctx, "gender_queer_flag_overlay.png")
 
     @commands.command(aliases=['les'])
     async def lesbian(self, ctx):
+        """Applies the lesbian flag filter to an image."""
         await self.apply_mask(ctx, "lesbian_flag_overlay.png")
 
     @commands.command(aliases=['pansexual'])
     async def pan(self, ctx):
+        """Applies the pansexual flag filter to an image."""
         await self.apply_mask(ctx, "pan_flag_overlay.png")
 
     @commands.command(aliases=['poly'])
     async def polysexual(self, ctx):
+        """Applies the polysexual flag filter to an image."""
         await self.apply_mask(ctx, "polysexual_flag_overlay.png")
 
     @commands.command(aliases=["tr", "transgender"])
     async def trans(self, ctx):
+        """Applies the transgender flag filter to an image."""
         await self.apply_mask(ctx, "trans_flag_mask.png")
 
     @commands.command(aliases=["comrade"])
     async def commie(self, ctx):
+        """Puts the hammer and sickle on your image."""
         await self.apply_mask(ctx, "commie.png")
 
     @commands.command(aliases=["gay", "rainbow", "mod"])
     async def gaygaygay(self, ctx):
+        """Applies the rainbow flag filter to an image."""
         await self.apply_mask(ctx, "gaygaygay.png")
         
         
