@@ -237,7 +237,7 @@ class Filters(commands.Cog):
 
     @commands.command()
     async def image(self, ctx):
-        """Returns the last image that sent."""
+        """Gets an image. Could be used to get your avatar."""
         f"""asdasd{self.bot.user.name}"""
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
