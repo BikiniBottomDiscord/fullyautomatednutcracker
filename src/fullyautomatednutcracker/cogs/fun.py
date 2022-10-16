@@ -57,6 +57,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['coot', 'cute'])
     async def aww(self, ctx):
+        """Gets a random post from the subreddit r/aww."""
         subreddit = await self.bot.reddit.subreddit('aww')
         post = await self.get_submission(subreddit)
         self.aww_submissions.remove(post)
@@ -72,10 +73,12 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['mc'])
     async def membercount(self,ctx):
+        """Gives you the current number of members in this server."""
         await ctx.send(f'The Current Member Count Is: {len(ctx.guild.members)}')
 
     @commands.command(aliases=['gi'])
     async def guildinfo(self,ctx):
+        """Gives you some information on this server, like number of users, roles, etc."""
         bots = len([x for x in ctx.guild.members if x.bot])
         amtuser = len([x for x in ctx.guild.members if not x.bot])
         embed = discord.Embed(title=(f'{ctx.guild.name}\'s info'), colour=discord.Color(0x67fafb),timestamp=ctx.message.created_at)
@@ -96,6 +99,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def howbad(self, ctx, member: discord.Member = None):
+        """Tells you how bad you are (it's a randomized number, don't take it seriously) (unless you're dove) (dmb)."""
         member = ctx.author if not member else member
         if member.id == 304695409031512064:
             embed = discord.Embed(title=(f'{member}\'s badness level'), colour=member.color)
@@ -112,6 +116,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def modcheck(self, ctx, member: discord.Member = None):
+        """Tells you how much of a mod you are (it's a randomized number, don't take it seriously)."""
         member = ctx.author if not member else member
         modlevel = random.randint(1, 100)
 
@@ -124,7 +129,7 @@ class Fun(commands.Cog):
     async def add_good(self,ctx, member:discord.Member):
         self.bot.good.append(member.id)
         await ctx.send('Added To Good Person List')
-
+    
     @commands.command()
     async def swine(self, ctx):
         """Swine"""
