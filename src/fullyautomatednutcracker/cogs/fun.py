@@ -23,8 +23,7 @@ class Fun(commands.Cog):
         self.aww_submissions = []
         self.bot.good = [224323277370294275, 448250281097035777, 562642634686988289, 368880176970596352]
         self.channels = [742559349750235136, 560663594849533962, 476812281984974870]  # put IDs here
-        self.words = ["Nut"]  # put others here if you want different versions
-        self.words = ["https://th.bing.com/th/id/OIP.2AsVVWJSmzZb0mt88jSD2AHaHa?pid=ImgDet&rs=1"]
+        self.words = ["Nut https://th.bing.com/th/id/OIP.2AsVVWJSmzZb0mt88jSD2AHaHa?pid=ImgDet&rs=1"]  # put others here if you want different versions
         self.minute_bounds = (1 * 60, 432000)  # 10s to 60s, change this (1m - 1h)
         self.loop = bot.loop.create_task(self.random_nut())
         self.stop = False
