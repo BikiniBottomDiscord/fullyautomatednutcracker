@@ -135,6 +135,11 @@ class Fun(commands.Cog):
         """Swine"""
         await ctx.send("https://tenor.com/view/fuck-not-swine-walking-back-gif-11560149")
 
+    @commands.command()
+    async def rage(self, ctx):
+        """Rage"""
+        await ctx.send("https://tenor.com/view/rage-mad-angry-kid-tantrums-gif-17338734")
+
     async def random_nut(self):
         await asyncio.sleep(5)
         while not self.stop:
