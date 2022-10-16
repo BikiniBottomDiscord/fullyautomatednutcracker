@@ -129,6 +129,11 @@ class Fun(commands.Cog):
     async def add_good(self,ctx, member:discord.Member):
         self.bot.good.append(member.id)
         await ctx.send('Added To Good Person List')
+    
+    @commands.command()
+    async def swine(self, ctx):
+        """Swine"""
+        await ctx.send("https://tenor.com/view/fuck-not-swine-walking-back-gif-11560149")
 
 
 def setup(bot):
