@@ -126,7 +126,7 @@ class Fun(commands.Cog):
         await ctx.send('Added To Good Person List')
 
     @commands.command()
-    async def swine(ctx):
+    async def swine(self, ctx):
         """Swine"""
         await ctx.send("https://tenor.com/view/fuck-not-swine-walking-back-gif-11560149")
 
