@@ -130,11 +130,6 @@ class Fun(commands.Cog):
         self.bot.good.append(member.id)
         await ctx.send('Added To Good Person List')
 
-    @commands.command()
-    async def swine(self, ctx):
-        """Swine"""
-        await ctx.send("https://tenor.com/view/fuck-not-swine-walking-back-gif-11560149")
-
 
 def setup(bot):
     bot.add_cog(Fun(bot))
