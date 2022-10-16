@@ -1,0 +1,4 @@
+requests
+discord.py
+apraw
+Pillow
