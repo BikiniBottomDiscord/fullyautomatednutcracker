@@ -9,6 +9,7 @@ from utils import checks
 import asyncio
 import random
 import math
+from urllib import parse
 
 # VARIABLES
 OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
@@ -134,6 +135,10 @@ class Fun(commands.Cog):
     async def swine(self, ctx):
         """Swine"""
         await ctx.send("https://tenor.com/view/fuck-not-swine-walking-back-gif-11560149")
+        
+    @commands.command(aliases=["mm"])
+    async def megamind(self, ctx, *, text):
+        await ctx.send("https://api.no-bitch.es/" + parse.quote(text))
 
 
 def setup(bot):
