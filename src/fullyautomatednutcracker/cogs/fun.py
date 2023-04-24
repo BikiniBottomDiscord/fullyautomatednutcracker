@@ -23,6 +23,11 @@ class Fun(commands.Cog):
         self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
         self.aww_submissions = []
         self.bot.good = [224323277370294275, 448250281097035777, 562642634686988289, 368880176970596352]
+        self.channels = [742559349750235136, 560663594849533962, 476812281984974870]  # put IDs here
+        self.words = ["Nut https://th.bing.com/th/id/OIP.2AsVVWJSmzZb0mt88jSD2AHaHa?pid=ImgDet&rs=1"]  # put others here if you want different versions
+        self.minute_bounds = (1 * 60, 432000)  # 10s to 60s, change this (1m - 1h)
+        self.loop = bot.loop.create_task(self.random_nut())
+        self.stop = False
 
     async def get_submission(self, subreddit):
         if len(self.aww_submissions) == 0:
@@ -139,6 +144,21 @@ class Fun(commands.Cog):
     @commands.command(aliases=["mm"])
     async def megamind(self, ctx, *, text):
         await ctx.send("https://api.no-bitch.es/" + parse.quote(text))
+
+    @commands.command()
+    async def rage(self, ctx):
+        """Rage"""
+        await ctx.send("https://tenor.com/view/rage-mad-angry-kid-tantrums-gif-17338734")
+
+    async def random_nut(self):
+        await asyncio.sleep(5)
+        while not self.stop:
+            try:
+                channel = self.bot.get_channel(random.choice(self.channels))
+                await channel.send(random.choice(self.words))
+            except:
+                pass
+            await asyncio.sleep(random.randint(self.minute_bounds[0], self.minute_bounds[1]))
 
 
 def setup(bot):
