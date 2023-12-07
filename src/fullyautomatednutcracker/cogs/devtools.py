@@ -1,19 +1,18 @@
-
 import discord
-from discord.ext import commands
-
 import inspect
 import aiohttp
-import asyncio
+
+from discord.ext import commands
 from typing import Union
-from typing import Optional
 
 from utils.converters import FetchedUser
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
-class DevTools(commands.Cog):
+class DevTools(AsyncBaseCog):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         self.session = aiohttp.ClientSession()
 
     @commands.command()
@@ -125,5 +124,5 @@ class DevTools(commands.Cog):
         await ctx.send(f"<{git_link}>")
 
 
-def setup(bot):
-    bot.add_cog(DevTools(bot))
+async def setup(bot):
+    await bot.add_cog(DevTools(bot))

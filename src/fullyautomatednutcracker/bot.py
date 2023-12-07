@@ -25,7 +25,7 @@ _pfx = ["$", "dmb ", "<:daddy:590058725252005888> "]
 bot = commands.Bot(command_prefix=_pfx, intents=discord.Intents.all(), case_insensitive=True)
 bot.help_command = CommunityHelpCommand()
 # bot.is_owner = is_owner  # TODO: do we want this? @dove
-version = "v0.0.1b"
+version = "v0.1.0b"
 
 START_TIME = datetime.datetime.now()
 STARTED = False
@@ -33,13 +33,19 @@ STARTED = False
 
 @bot.event
 async def on_ready():
-    logger.info(f"Successfully logged into account {bot.user.name} with id {str(bot.user.id)} and version {version}")
     global STARTED
+    logger.info(f"Successfully logged into account {bot.user.name} with id {str(bot.user.id)} and version {version}")
+    await bot.change_presence(activity=discord.Activity(name="nuts and bananas", type=discord.ActivityType.watching))
+    bot.version = version
+    bot.start_time = START_TIME
     if not STARTED:
-        common.load_blacklist()
-        await bot.get_channel(Settings.instance.TREEDOME).send(f"Starting up...")
+        await bot.load_extension("fullyautomatednutcracker.manager")
+        await bot.fetch_guild(Settings.instance.GUILD)
+        loaded, total = await bot.get_cog("Manager").load_all_cogs()
         STARTED = True
-        
+        common.load_blacklist()
+        await bot.get_channel(Settings.instance.TREEDOME).send(f"Fully Automated Nutcracker is online.\nLoaded {loaded} of {total} available cogs.")
+
 
 @bot.event
 async def on_message(message):
@@ -49,15 +55,15 @@ async def on_message(message):
         await bot.process_commands(message)
 
 
-cog_dir = "fullyautomatednutcracker/cogs"
-import_dir = cog_dir.replace('/', '.')
-COGS_LOADED = False
-if not COGS_LOADED:
-    for extension in [f.replace('.py', '') for f in listdir(cog_dir) if isfile(join(cog_dir, f))]:
-        try:
-            bot.load_extension(import_dir + "." + extension)
-            print(f'Successfully loaded extension {extension}.')
-        except (discord.ClientException, ModuleNotFoundError):
-            print(f'Failed to load extension {extension}.')
-            traceback.print_exc()
-    COGS_LOADED = True
+@bot.event
+async def on_command_error(context, exception):
+    for _class in [commands.CommandNotFound, commands.CheckFailure]:
+        if isinstance(exception, _class):
+            return
+    for _class in [commands.MissingRequiredArgument]:
+        if isinstance(exception, _class):
+            await context.send_help(context.command)
+            return
+    exc = traceback.format_exception(exception.__class__, exception, exception.__traceback__)
+    exc = ''.join(exc) if isinstance(exc, list) else exc
+    logger.error(f'Ignoring exception in command {context.command}:\n{exc}')

@@ -12,7 +12,9 @@ ggs = global_guild_settings.BotGuildSettings(
     None,
     fan_bot.bot
 )
-loop = asyncio.get_event_loop()
-neptuneshelper = loop.create_task(fan_bot.bot.start(common.load_creds(DEBUG_MODE, common.EcosystemBots.FullyAutomatedNutcracker)))
-gathered = asyncio.gather(neptuneshelper, loop=loop)
-loop.run_until_complete(gathered)
+
+
+async def get_bots():
+    fullyautomatednutcrackerbot = fan_bot.bot.start(common.load_creds(DEBUG_MODE, common.EcosystemBots.FullyAutomatedNutcracker))
+    return await asyncio.gather(*(fullyautomatednutcrackerbot,))
+asyncio.run(get_bots())

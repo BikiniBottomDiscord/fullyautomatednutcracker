@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 def resize(im, size):
     bands = im.split()
-    bands = [b.resize(size, Image.LINEAR) for b in bands]
+    bands = [b.resize(size, Image.BILINEAR) for b in bands]
     return Image.merge('RGBA', bands)
 
 
@@ -19,7 +19,7 @@ def resize_to_nearest(image, square_size):
         size = (square_size, image.height * square_size // image.width)
     else:
         size = (image.width * square_size // image.height, square_size)
-    bands = [b.resize(size, Image.LINEAR) for b in bands]
+    bands = [b.resize(size, Image.BILINEAR) for b in bands]
     return Image.merge('RGBA', bands)
 
 

@@ -8,12 +8,11 @@ from typing import Union
 
 from utils.global_guild_settings import BotGuildSettings as Settings
 from utils.common import is_admin
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
-class Admin(commands.Cog):
+class Admin(AsyncBaseCog):
     """Admin commands for bot maintenance."""
-    def __init__(self, bot):
-        self.bot = bot
 
     def cog_check(self, ctx):
         return is_admin(ctx.author)
@@ -22,30 +21,6 @@ class Admin(commands.Cog):
     async def close(self, ctx):
         await ctx.send("No u.")
         await self.bot.close()
-
-    @commands.command()
-    async def load(self, ctx, cog_name):
-        try:
-            self.bot.load_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
-            await ctx.send(f"Loaded {cog_name}.")
-        except Exception as e:
-            await ctx.send(f"{e.__class__.__name__}: {e}")
-
-    @commands.command()
-    async def unload(self, ctx, cog_name):
-        try:
-            self.bot.unload_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
-            await ctx.send(f"Unloaded {cog_name}.")
-        except Exception as e:
-            await ctx.send(f"{e.__class__.__name__}: {e}")
-
-    @commands.command()
-    async def reload(self, ctx, cog_name):
-        try:
-            self.bot.reload_extension(f"fullyautomatednutcracker.cogs.{cog_name}")
-            await ctx.send(f"Reloaded {cog_name}.")
-        except Exception as e:
-            await ctx.send(f"{e.__class__.__name__}: {e}")
 
     @commands.command()
     async def send(self, ctx, destination: Union[TextChannel, Member], *, msg):
@@ -74,5 +49,5 @@ class Admin(commands.Cog):
         await self.bot.get_channel(Settings.instance.TREEDOME).send(f"Global constants updated.")
 
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))

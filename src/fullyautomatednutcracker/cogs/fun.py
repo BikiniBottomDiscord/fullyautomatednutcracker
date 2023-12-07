@@ -1,24 +1,21 @@
-# put all the fun commands here
-# IMPORTS
 import discord
 import apraw
-
-from discord.ext import commands
-from utils.common import load_reddit_creds
-from utils import checks
 import asyncio
 import random
-import math
+
+from discord.ext import commands
 from urllib import parse
 
-# VARIABLES
-OPTIONS = ['Rock!', 'Paper!', 'Scissors!']
+from utils.common import load_reddit_creds
+from utils import checks
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
-class Fun(commands.Cog):
+class Fun(AsyncBaseCog):
     """Fun commands like quick bot responses or simple games. ex: rock paper scissors"""
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         username, password, client_secret, client_id = load_reddit_creds()
         self.bot.reddit = apraw.Reddit(username=username, password=password, client_secret=client_secret, client_id=client_id)
         self.aww_submissions = []
@@ -73,18 +70,18 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['mc'])
-    async def membercount(self,ctx):
+    async def membercount(self, ctx):
         """Gives you the current number of members in this server."""
         await ctx.send(f'The Current Member Count Is: {len(ctx.guild.members)}')
 
     @commands.command(aliases=['gi'])
-    async def guildinfo(self,ctx):
+    async def guildinfo(self, ctx):
         """Gives you some information on this server, like number of users, roles, etc."""
         bots = len([x for x in ctx.guild.members if x.bot])
         amtuser = len([x for x in ctx.guild.members if not x.bot])
         embed = discord.Embed(title=(f'{ctx.guild.name}\'s info'), colour=discord.Color(0x67fafb),timestamp=ctx.message.created_at)
-        embed.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar_url)
-        embed.set_thumbnail(url=ctx.guild.icon_url)
+        embed.set_footer(text=f"requested by {ctx.author}", icon_url=ctx.author.avatar.url)
+        embed.set_thumbnail(url=ctx.guild.icon.url)
         embed.add_field(name='Guild id:', value=ctx.guild.id)
         embed.add_field(name="Members:", value=(f"{amtuser}"))
         embed.add_field(name="Bots:", value=(f'{bots}'))
@@ -127,7 +124,7 @@ class Fun(commands.Cog):
 
     @commands.command()
     @checks.is_admin()
-    async def add_good(self,ctx, member:discord.Member):
+    async def add_good(self, ctx, member: discord.Member):
         self.bot.good.append(member.id)
         await ctx.send('Added To Good Person List')
     
@@ -141,5 +138,5 @@ class Fun(commands.Cog):
         await ctx.send("https://api.no-bitch.es/" + parse.quote(text))
 
 
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(Fun(bot))

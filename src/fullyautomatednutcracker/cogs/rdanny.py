@@ -1,11 +1,13 @@
-from discord.ext import commands
-
 import discord
 import aiohttp
 import re
 import zlib
 import io
 import os
+
+from discord.ext import commands
+
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
 def finder(text, collection, *, key=None, lazy=True):
@@ -70,10 +72,10 @@ class SphinxObjectFileReader:
                 pos = buf.find(b'\n')
 
 
-
-class RDanny(commands.Cog):
+class RDanny(AsyncBaseCog):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         self.bot.session = aiohttp.ClientSession()
         self.issue = re.compile(r'##(?P<number>[0-9]+)')
         self._recently_blocked = set()
@@ -227,5 +229,5 @@ class RDanny(commands.Cog):
         await self.do_rtfm(ctx, 'python-jp', obj)
 
 
-def setup(bot):
-    bot.add_cog(RDanny(bot))
+async def setup(bot):
+    await bot.add_cog(RDanny(bot))

@@ -16,6 +16,7 @@ class CommunityHelpCommand(commands.HelpCommand):
         self.no_category = options.pop('no_category', 'No Category')
         self.embed = discord.Embed()
         self.paginator = commands.Paginator(suffix=None, prefix=None)
+        self.clean_prefix = "$"
 
         super().__init__(**options)
 

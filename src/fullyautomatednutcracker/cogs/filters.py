@@ -6,17 +6,16 @@ import datetime
 import requests
 import argparse
 import random
+import textwrap
 
 from discord.ext import commands
 from PIL import Image, ImageOps, ImageDraw, ImageFont, ImageFilter
+from string import ascii_letters
 
 from utils import common_imaging
 from utils.argparse_but_better import ArgumentParser
 from utils.common import has_blacklisted_word
-
-from string import ascii_letters
-import textwrap
-
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
 def retweets_and_likes_generator(lower_limit, upper_limit):
@@ -27,8 +26,9 @@ def retweets_and_likes_generator(lower_limit, upper_limit):
     list_for_raw_number.insert(-3, ",")
     ratio = ""
     for i in list_for_raw_number:
-        ratio+= i
+        ratio += i
     return ratio
+
 
 def date_generator():
     d1 = datetime.datetime.strptime('1/1/2012 1:30 PM', '%m/%d/%Y %I:%M %p')
@@ -63,10 +63,11 @@ class DownloadedAsset:
                 pass  # end of sequence
 
 
-class Filters(commands.Cog):
+class Filters(AsyncBaseCog):
     """Filters!"""
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         self.user_image_cache = dict()
         self.url_regex = re.compile(
             r'^(?:http|ftp)s?://'  # http:// or https://
@@ -128,7 +129,7 @@ class Filters(commands.Cog):
         content = content[0] if len(content) > 0 else ""
         # Fetch a url
         if content == 'me':
-            image_url = ctx.author.avatar_url
+            image_url = ctx.author.avatar.url
         elif len(ctx.message.attachments) > 0:
             image_url = ctx.message.attachments[0].url
         elif re.match(self.url_regex, content):
@@ -137,9 +138,9 @@ class Filters(commands.Cog):
         elif await self.wrapped_converter(commands.PartialEmojiConverter, ctx, content):
             image_url = self.__wrapped_conversion.url
         elif await self.wrapped_converter(commands.MemberConverter, ctx, content):
-            image_url = self.__wrapped_conversion.avatar_url
+            image_url = self.__wrapped_conversion.avatar.url
         elif await self.wrapped_converter(commands.UserConverter, ctx, content):
-            image_url = self.__wrapped_conversion.avatar_url
+            image_url = self.__wrapped_conversion.avatar.url
         elif ctx.author.id in self.user_image_cache and (datetime.datetime.now().timestamp() - self.user_image_cache[ctx.author.id][1]) <= 60 * 15:
             image_url = self.user_image_cache[ctx.author.id][0][self.user_image_cache[ctx.author.id][2]]
         else:
@@ -380,7 +381,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['antirotate', 'spinc', 'sc', 'rc', 'rotatec', 'spinright'])
     async def antispin(self, ctx):
-        """Makes an image spin clockwise.""" #Dove, why isn't the normal spin clockwise?
+        """Makes an image spin clockwise.""" # Dove, why isn't the normal spin clockwise?
         await self._spin(ctx, direction=-1)
 
     async def _spin(self, ctx, direction):
@@ -732,7 +733,7 @@ class Filters(commands.Cog):
 
     @commands.command(aliases=['convolve', 'convolutionize'])
     async def kernel(self, ctx):
-        #idk -Bez
+        # idk -Bez
         arguments = await self.get_args_from_message(ctx)
         if not arguments:
             return
@@ -961,11 +962,7 @@ class Filters(commands.Cog):
         """Applies the rainbow flag filter to an image."""
         await self.apply_mask(ctx, "gaygaygay.png")
         
-        
-    @commands.command(
-        name = "trumptweet",
-        aliases = ['trump', 'trumpet']        
-    )
+    @commands.command(name="trumptweet", aliases=['trump', 'trumpet'])
     async def djtj(self, ctx, *, text = None):
         """Trump tweets whatever you say."""
         arguments = await self.get_args_from_message(ctx)
@@ -995,10 +992,8 @@ class Filters(commands.Cog):
         writing_text = ImageDraw.Draw(text_image)
         writing_text.text(xy=(0, 0), text=text, font=font, fill='#000000')
         
-        
         trump_tweet_header_path = "content/filters/trump_tweet_header.png"
         trump_tweet_footer_path = "content/filters/trump_tweet_footer.png"
-        
         
         trump_tweet_footer = Image.open(trump_tweet_footer_path)
         font_ratio = ImageFont.truetype("content/filters/HelveticaNeueBold.ttf", size = 36)
@@ -1007,13 +1002,11 @@ class Filters(commands.Cog):
         likes = retweets_and_likes_generator(10000, 250000)
         trump_tweet_ratio = ImageDraw.Draw(trump_tweet_footer)
         
-        #the retweets-likes
+        # the retweets-likes
         trump_tweet_ratio.text(xy = (42, 45), text = retweets, font = font_ratio, fill = "#438DCB")
         trump_tweet_ratio.text(xy = (210, 45), text = likes, font = font_ratio, fill = "#438DCB")
-        
-        
-        #the datestamp
-        
+
+        # the datestamp
         timestamp, datestamp = date_generator()
         trump_tweet_ratio.text(xy = (42, 134), text = timestamp, font = font_datestamp, fill = "#6E777E")
         trump_tweet_ratio.text(xy = (170, 134), text = datestamp, font = font_datestamp, fill = "#6E777E")
@@ -1030,12 +1023,12 @@ class Filters(commands.Cog):
         trump_tweet.paste(text_image, (42, 150))
         trump_tweet.paste(trump_tweet_footer, (0, text_image_y_dimension+151))
         
-        
         await self.save_img_and_send(arguments, ctx.author, ctx.channel, trump_tweet, file_name="trump_says", things_to_close=(trump_tweet, trump_tweet_footer, trump_tweet_header))
 
     @commands.command(help = "Adds the morbius face filter to your image", aliases = ['morb',])
     async def morbius(self, ctx, image_link = None):
         await self.apply_mask(ctx, "morbius.png")
 
-def setup(bot):
-    bot.add_cog(Filters(bot))
+
+async def setup(bot):
+    await bot.add_cog(Filters(bot))

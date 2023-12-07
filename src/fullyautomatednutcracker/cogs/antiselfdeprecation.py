@@ -1,13 +1,15 @@
-from discord.ext import commands
 import asyncio
-
 import time
 
+from discord.ext import commands
+
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
-class AntiSelfDeprecation(commands.Cog):
+class AntiSelfDeprecation(AsyncBaseCog):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         self.bot.nono_words = []
         self.dumb = ('im dumb', 'i\'m dumb', 'im stupid', 'i\'m stupid')
         self.not_dumb = ('im not dumb', 'i\'m not dumb', 'i\'m not stupid', 'im not stupid')
@@ -43,5 +45,6 @@ class AntiSelfDeprecation(commands.Cog):
             if self.last_bumped == bumped:
                 await message.channel.send('<a:filterfeed:693001359934357563> No one\'s bumped our server in over two hours! Disboard keeps us up on the front page! Use `/bump` to bump us!')
 
-def setup(bot):
-    bot.add_cog(AntiSelfDeprecation(bot))
+
+async def setup(bot):
+    await bot.add_cog(AntiSelfDeprecation(bot))

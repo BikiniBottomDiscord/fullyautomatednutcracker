@@ -5,11 +5,14 @@ import random
 
 from discord.ext import commands
 
+from utils.async_base_cog_manager import AsyncBaseCog
 
-class Info(commands.Cog):
+
+class Jellyfishing(AsyncBaseCog):
     """Useful commands for the Jellyfish Factions"""
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         with open("config/faction_questions.json", "r") as fp:
             self.questions = json.load(fp)
         self.quizzing = False
@@ -54,5 +57,5 @@ class Info(commands.Cog):
             self.quizzing = False
 
 
-def setup(bot):
-    bot.add_cog(Info(bot))
+async def setup(bot):
+    await bot.add_cog(Jellyfishing(bot))

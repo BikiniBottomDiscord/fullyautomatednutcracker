@@ -3,11 +3,13 @@ import git
 from discord.ext import commands
 
 from utils.common import is_admin
+from utils.async_base_cog_manager import AsyncBaseCog
 
 
-class Github(commands.Cog):
+class Github(AsyncBaseCog):
     def __init__(self, bot):
-        self.bot = bot
+        super().__init__(bot)
+
         self.repository = git.cmd.Git("../")
 
     def cog_check(self, ctx):
@@ -58,5 +60,5 @@ class Github(commands.Cog):
         return chunks
 
 
-def setup(bot):
-    bot.add_cog(Github(bot))
+async def setup(bot):
+    await bot.add_cog(Github(bot))
